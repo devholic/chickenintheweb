@@ -1,0 +1,63 @@
+@import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
+
+html{
+  height:100%;
+}
+
+body {
+  padding-top: 50px;
+  height: 100%;
+}
+
+.navbar {
+	border-radius: 0;
+	background-color: #F44336;
+}
+
+.navbar-brand {
+	font-family: 'Hanna', serif;
+	letter-spacing: 0.5px;
+}
+
+#loginpage_parent {
+	min-height:100%;
+	background-image: url('../resources/background_chicken.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
+#loginpage_wrapper{
+    margin: 0 auto;
+}
+
+#loginpage_content {
+	padding: 40px 15px;
+	text-align: center;
+	color: #FFFFFF;
+	font-family: 'Hanna', serif;
+	font-size: 48pt;
+}
+
+.accountinput {
+	margin: 5px auto;
+    max-width: 330px;
+    padding: 10px;
+}
+
+.form-control {
+    position: relative;
+  	height: auto;
+  	padding: 10px;
+  	margin-top: 10px;
+  	margin-bottom: 10px;
+  	font-size: 16px;
+}
+
+#header a {
+	color: #FFFFFF;
+}
+
+#header li a:hover {
+	background-color: #D32F2F;
+}
