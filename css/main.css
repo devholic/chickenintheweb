@@ -29,6 +29,16 @@ body {
 	background-position: center center;
 }
 
+#errorpage_background{
+	height:100%;
+	width:100%;
+	display:table;
+	background-image: url('../resources/background_chicken.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+
 .vertical-center {
   display:table-cell;
   vertical-align:middle;
@@ -40,7 +50,7 @@ body {
 }
 
 #loginpage_content {
-	padding: 40px 15px;
+	padding: 15px 15px;
 	text-align: center;
 	color: #FFFFFF;
 	font-family: 'Hanna', serif;
