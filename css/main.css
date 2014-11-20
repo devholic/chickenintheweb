@@ -5,13 +5,14 @@ html{
 }
 
 body {
+  height:100%;
   padding-top: 50px;
-  height: 100%;
 }
 
 .navbar {
 	border-radius: 0;
 	background-color: #F44336;
+	margin-bottom: 0px;
 }
 
 .navbar-brand {
@@ -19,16 +20,24 @@ body {
 	letter-spacing: 0.5px;
 }
 
-#loginpage_parent {
-	min-height:100%;
+#loginpage_background{
+	height:100%;
+	width:100%;
+	display:table;
 	background-image: url('../resources/background_chicken.jpg');
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center center;
 }
 
+.vertical-center {
+  display:table-cell;
+   vertical-align:middle;
+   text-align:center;
+}
+
 #loginpage_wrapper{
-    margin: 0 auto;
+	margin: 0 auto;
 }
 
 #loginpage_content {
@@ -52,6 +61,20 @@ body {
   	margin-top: 10px;
   	margin-bottom: 10px;
   	font-size: 16px;
+}
+
+.form-control:focus {
+	border-color: #b94a48;
+    position: relative;
+  	height: auto;
+  	padding: 10px;
+  	margin-top: 10px;
+  	margin-bottom: 10px;
+  	font-size: 16px;
+}
+
+#loginbtn{
+	margin-bottom: 40px;
 }
 
 #header a {

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>치킨인더웹 : 이세상 모든 치킨</title>
+    <title>치킨인더웹 : 이 세상 모든 치킨</title>
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/main.css" rel="stylesheet">
   </head>
@@ -36,17 +36,17 @@
   </div>
 </div>
 {% else %}
-<div id="loginpage_parent">
-  <nav class="navbar navbar-fixed-top" role="navigation" id="header">
+<nav class="navbar navbar-fixed-top" role="navigation" id="header">
     <div class="container-fluid" id="navbar-container">
       <div class="navbar-header">
       <a class="navbar-brand" href="/">치킨인더웹</a>
       </div>
 
     </div>
-  </nav>
-  <div class="container">
-  <div id="loginpage_wrapper">
+</nav>
+  <div id="loginpage_background">
+  <div class="container vertical-center" id="loginpage_container">
+  <div id="loginpage_wrapper ">
   <div id="loginpage_content">
   </div> <!-- loginpage -->
   <script type="text/javascript">
@@ -67,13 +67,13 @@
         <input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
         <label for="inputPassword" class="sr-only">비밀번호</label>
         <input type="password" name="password" id="inputPassword" class="form-control" placeholder="비밀번호" required>
-        <button class="btn btn-lg btn-primary btn-block" type="submit">로그인</button>
+        <button id="loginbtn" class="btn btn-lg btn-primary btn-block" type="submit">로그인</button>
       </form>
 
   </div>
   </div> <!-- loginpage_wrapper -->
   </div> <!-- container -->
-</div> <!-- loginpage_parent -->
+  </div>
 {% endif %}
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
