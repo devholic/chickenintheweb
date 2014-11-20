@@ -51,23 +51,26 @@
   </div> <!-- loginpage -->
   <script type="text/javascript">
     var text = ["너와 나의 치킨 고리<br> 이건 우리 안의 치킨", "또래 오래 굽네 네네<br> 멕시 카나 페리 카나", "오늘 먹을 치킨을<br> 내일로 미루지 말자"];
+    var url = ["../resources/background_chicken.jpg","../resources/background_chicken2.jpg","../resources/background_chicken.jpg"]
     var counter = 0;
     var elem = document.getElementById("loginpage_content");
+    var elem2 = document.getElementById("loginpage_background");
     change();
     setInterval(change, 10000);
     function change() {
      elem.innerHTML = text[counter];
+     elem2.style.backgroundImage = "url(" + url[counter] + ")";
      counter++;
      if(counter >= text.length) { counter = 0; }
     }
   </script>
     <div id="loginpage_input">
-     <form class="accountinput" role="form" method="post" action="/141120/v1/login">
+     <form class="accountinput" role="form" method="post" action="/login">
         <label for="inputEmail" class="sr-only">이메일 주소</label>
         <input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
         <label for="inputPassword" class="sr-only">비밀번호</label>
         <input type="password" name="password" id="inputPassword" class="form-control" placeholder="비밀번호" required>
-        <button id="loginbtn" class="btn btn-lg btn-primary btn-block" type="submit">로그인</button>
+        <button id="loginbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">로그인</button>
       </form>
 
   </div>

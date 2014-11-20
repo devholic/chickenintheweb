@@ -24,7 +24,6 @@ body {
 	height:100%;
 	width:100%;
 	display:table;
-	background-image: url('../resources/background_chicken.jpg');
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center center;
@@ -32,8 +31,8 @@ body {
 
 .vertical-center {
   display:table-cell;
-   vertical-align:middle;
-   text-align:center;
+  vertical-align:middle;
+  text-align:center;
 }
 
 #loginpage_wrapper{
@@ -75,6 +74,24 @@ body {
 
 #loginbtn{
 	margin-bottom: 40px;
+}
+
+.btn-default { 
+	outline: none;
+	border-color: #F44336; 
+	background-color: #F44336;
+}
+
+.btn-default:hover { 
+	outline: none;
+	border-color: #E53935; 
+	background-color: #E53935; 
+}
+
+.btn-default:focus, .btn-default:active {
+	outline: none;
+	border-color: #D32F2F; 
+	background-color: #D32F2F; 
 }
 
 #header a {
