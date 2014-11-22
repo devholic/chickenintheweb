@@ -19,6 +19,7 @@ import os
 import webapp2
 import logging
 import random
+import datetime
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
@@ -42,16 +43,23 @@ class RegisterHandler(webapp2.RequestHandler):
 	def post(self):
 		req_email = self.request.get('email')
 		alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-		salt = ""
+		saltstring = ""
 		for i in range(16):
-			salt+=random.choice(alphabet)
+			saltstring+=random.choice(alphabet)
 
 		query = User.all()
 		if len(query.filter("email ==",req_email).get()) == 1:
 			# 유저가 존재하는 경우
+			# 유저를 삭제 
 			req_pw = self.request.get('password')
 		else:
+			# 유저를 추가
 			req_pw = self.request.get('password')
+			user = User(email=req_email,password=req_pw,isFacebookAccount=False,salt=saltstring)
+			user.created_at = datetime.datetime.now().date()
+			user.isSeller = False
+			user.isAdmin = False
+			user.put()
 			#u = User(email=req_email,)
 
 class LoginHandler(webapp2.RequestHandler):
