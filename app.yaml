@@ -18,6 +18,9 @@ handlers:
 - url: /js
   static_dir: js
 
+- url: /jq
+  static_dir: jq
+
 - url: /resources
   static_dir: resources
 

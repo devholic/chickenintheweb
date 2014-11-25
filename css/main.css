@@ -1,12 +1,12 @@
 @import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
 
 html{
-  height:100%;
+	height:100%;
 }
 
 body {
-  height:100%;
-  padding-top: 50px;
+	height:100%;
+	padding-top: 50px;
 }
 
 .navbar {
@@ -21,6 +21,11 @@ body {
 }
 
 #loginpage_background{
+	-webkit-transition: background 0.5s ease-in-out;
+	-moz-transition: background- 0.5s ease-in-out;
+	-ms-transition: background 0.5s ease-in-out;
+	-o-transition: background 0.5s ease-in-out;
+	transition: background 0.5s ease-in-out;
 	height:100%;
 	width:100%;
 	display:table;
@@ -29,6 +34,13 @@ body {
 	background-position: center center;
 }
 
+.bg1{
+	background-image: url('../resources/background_chicken.jpg');
+}
+
+.bg2{
+	background-image: url('../resources/background_chicken2.jpg');
+}
 #errorpage_background{
 	height:100%;
 	width:100%;
@@ -40,9 +52,9 @@ body {
 }
 
 .vertical-center {
-  display:table-cell;
-  vertical-align:middle;
-  text-align:center;
+	display:table-cell;
+	vertical-align:middle;
+	text-align:center;
 }
 
 #loginpage_wrapper{
@@ -59,27 +71,27 @@ body {
 
 .accountinput {
 	margin: 5px auto;
-    max-width: 330px;
-    padding: 10px;
+	max-width: 330px;
+	padding: 10px;
 }
 
 .form-control {
-    position: relative;
-  	height: auto;
-  	padding: 10px;
-  	margin-top: 10px;
-  	margin-bottom: 10px;
-  	font-size: 16px;
+	position: relative;
+	height: auto;
+	padding: 10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 16px;
 }
 
 .form-control:focus {
 	border-color: #b94a48;
-    position: relative;
-  	height: auto;
-  	padding: 10px;
-  	margin-top: 10px;
-  	margin-bottom: 10px;
-  	font-size: 16px;
+	position: relative;
+	height: auto;
+	padding: 10px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	font-size: 16px;
 }
 
 #loginbtn{

@@ -20,20 +20,20 @@ import webapp2
 import logging
 import random
 import datetime
+import hashlib
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
 class User(db.Model):
-	email = db.StringProperty(required=True) # 이메일
-	password = db.StringProperty(required=True) # 비밀번호
-	name = db.StringProperty(required=False) # 이름
-	address = db.StringProperty(required=False) # 주소
-	number = db.StringProperty(required=False) # 전화번호
-	isFacebookAccount = db.BooleanProperty(required=True) # 페이스북 계정인지 
-	salt = db.StringProperty(required=True) # Salt
-	created_at = db.DateProperty(required=True) # Created At
-	isSeller = db.BooleanProperty(required=True)
-	isAdmin = db.BooleanProperty(required=True)
+	email = db.StringProperty() # 이메일
+	password = db.StringProperty() # 비밀번호
+	name = db.StringProperty() # 이름
+	address = db.StringProperty() # 주소
+	number = db.StringProperty() # 전화번호
+	salt = db.StringProperty() # Salt
+	created_at = db.DateProperty(auto_now_add=True) # Created At
+	isSeller = db.BooleanProperty() # 판매자인지 
+	isAdmin = db.BooleanProperty() # 관리자인지
 
 class RegisterHandler(webapp2.RequestHandler):
 	def get(self):
@@ -48,19 +48,19 @@ class RegisterHandler(webapp2.RequestHandler):
 			saltstring+=random.choice(alphabet)
 
 		query = User.all()
-		if len(query.filter("email ==",req_email).get()) == 1:
+		if query.filter("email ==",req_email).count() == 1:
 			# 유저가 존재하는 경우
 			# 유저를 삭제 
 			req_pw = self.request.get('password')
 		else:
 			# 유저를 추가
-			req_pw = self.request.get('password')
-			user = User(email=req_email,password=req_pw,isFacebookAccount=False,salt=saltstring)
-			user.created_at = datetime.datetime.now().date()
-			user.isSeller = False
-			user.isAdmin = False
+			user = User()
+			user.email = self.request.get('email')
+			user.password = hashlib.sha256(self.request.get('password') + saltstring).hexdigest() # Hash 후 저장
+			user.salt = saltstring # Salt
+			user.isSeller = False # 판매자 False
+			user.isAdmin = False # 관리자 False
 			user.put()
-			#u = User(email=req_email,)
 
 class LoginHandler(webapp2.RequestHandler):
 	def get(self):
@@ -70,12 +70,16 @@ class LoginHandler(webapp2.RequestHandler):
 	def post(self):
 		email = self.request.get('email')
 		password = self.request.get('password')
-		logging.info('Checking account='+email+' pw='+password)
 		query = db.Query(User)
 		path = os.path.join(os.path.dirname(__file__), 'templates/error.htm')
-		if query.filter("email ==",email).count() == 1:
+		q = query.filter("email ==",email)
+		if q.count() == 1:
 			# 유저가 존재하는 경우
-			self.response.write(template.render(path,{'errorcode':'200'}))
+			u = q.get()
+			if u.password==hashlib.sha256(password + u.salt).hexdigest():
+				self.response.write(template.render(path,{'errorcode':'200'}))
+			else:
+				self.response.write(template.render(path,{'errorcode':'401'}))
 		else:
 			self.response.write(template.render(path,{'errorcode':'400'}))
 
