@@ -1,4 +1,5 @@
 @import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
+@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
 
 html{
 	height:100%;
@@ -61,6 +62,18 @@ body {
 	margin: 0 auto;
 }
 
+.loginpage_link {
+	color: #FFFFFF;
+	font-size: 10pt;
+	font-family: "Nanum Gothic", sans-serif;
+}
+
+.loginpage_link:hover {
+	color: #FFFFFF;
+	font-size:10pt;
+	font-family: "Nanum Gothic", sans-serif;
+}
+
 #loginpage_content {
 	padding: 15px 15px;
 	text-align: center;
@@ -73,6 +86,7 @@ body {
 	margin: 5px auto;
 	max-width: 330px;
 	padding: 10px;
+	font-family: "Nanum Gothic", sans-serif;
 }
 
 .form-control {
@@ -95,25 +109,28 @@ body {
 }
 
 #loginbtn{
-	margin-bottom: 40px;
+	margin-bottom: 15px;
 }
 
 .btn-default { 
 	outline: none;
 	border-color: #F44336; 
 	background-color: #F44336;
+	font-family: "Nanum Gothic", sans-serif;
 }
 
 .btn-default:hover { 
 	outline: none;
 	border-color: #E53935; 
 	background-color: #E53935; 
+	font-family: "Nanum Gothic", sans-serif;
 }
 
 .btn-default:focus, .btn-default:active {
 	outline: none;
 	border-color: #D32F2F; 
 	background-color: #D32F2F; 
+	font-family: "Nanum Gothic", sans-serif;
 }
 
 #header a {
