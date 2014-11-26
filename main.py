@@ -21,6 +21,7 @@ import logging
 import random
 import datetime
 import hashlib
+from webapp2_extras import sessions
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
@@ -35,9 +36,39 @@ class User(db.Model):
 	isSeller = db.BooleanProperty() # 판매자인지 
 	isAdmin = db.BooleanProperty() # 관리자인지
 
+def Render(handler, path = "index.htm", values ={}):
+	fpath = os.path.join(os.path.dirname(__file__), 'templates/' + path)
+	if not os.path.isfile(fpath):
+		return False
+	d = dict(values)
+	email = handler.session.get('email')
+	if email:
+		d['email'] = email
+
+	d['path'] = handler.request.path
+	outstr = template.render(fpath, d)
+	handler.response.out.write(unicode(outstr))
+	return True
+
+class BaseHandler(webapp2.RequestHandler):
+    def dispatch(self):
+        # Get a session store for this request.
+        self.session_store = sessions.get_store(request=self.request)
+        try:
+            # Dispatch the request.
+            webapp2.RequestHandler.dispatch(self)
+        finally:
+            # Save all sessions.
+            self.session_store.save_sessions(self.response)
+
+    @webapp2.cached_property
+    def session(self):
+        # Returns a session using the default cookie key.
+        return self.session_store.get_session()
+
 class RegisterHandler(webapp2.RequestHandler):
 	def get(self):
-		path = os.path.join(os.path.dirname(__file__), 'templates/error.htm')
+		path = os.path.join(os.path.dirname(__file__), 'error.htm')
 		self.response.write(template.render(path,{'errorcode':'400'}))
 
 	def post(self):
@@ -62,32 +93,52 @@ class RegisterHandler(webapp2.RequestHandler):
 			user.isAdmin = False # 관리자 False
 			user.put()
 
-class LoginHandler(webapp2.RequestHandler):
+class LoginHandler(BaseHandler):
 	def get(self):
-		path = os.path.join(os.path.dirname(__file__), 'templates/index.htm')
-		self.response.write(template.render(path,''))
+		Render(self, "index.htm")
 
 	def post(self):
 		email = self.request.get('email')
 		password = self.request.get('password')
 		query = db.Query(User)
-		path = os.path.join(os.path.dirname(__file__), 'templates/error.htm')
 		q = query.filter("email ==",email)
 		if q.count() == 1:
 			# 유저가 존재하는 경우
 			u = q.get()
-			if u.password==hashlib.sha256(password + u.salt).hexdigest():
-				self.response.write(template.render(path,{'errorcode':'200'}))
+			if u.password == hashlib.sha256(password + u.salt).hexdigest():
+				self.session['email'] = email
+				Render(self, 'index.htm', {})
 			else:
-				self.response.write(template.render(path,{'errorcode':'401'}))
+				Render(self, 'error.htm', {'errorcode':'401'})
 		else:
-			self.response.write(template.render(path,{'errorcode':'400'}))
+			Render(self, 'error.htm', {'errorcode':'400'})
 
-class MainHandler(webapp2.RequestHandler):
+class LogoutHandler(BaseHandler):
+	def get(self):
+		self.session.clear()
+		Render(self, "index.htm")
+
+	def post(self):
+		self.session.clear()
+		Render(self, "index.htm")
+
+class MainHandler(BaseHandler):
     def get(self):
-    	path = os.path.join(os.path.dirname(__file__), 'templates/index.htm')
-        self.response.write(template.render(path,''))
+		logging.info(self.request.path)
+		if Render(self,self.request.path):
+			return
+		Render(self, 'index.htm', {})
 
-app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler),
-    ('/.*', MainHandler)
-], debug=True)
+config = {}
+
+config['webapp2_extras.sessions'] = {
+    'secret_key': 'dc458da48fa171a071a547a07d8e13f25dd2ed714a03f4d6fbae331e6b711139',
+}
+
+app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), ('/logout', LogoutHandler), ('/.*', MainHandler)], debug=True, config=config)
+
+def main():
+	app.run()
+
+if __name__ == '__main__':
+	main()

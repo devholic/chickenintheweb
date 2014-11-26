@@ -24,7 +24,7 @@ handlers:
 - url: /resources
   static_dir: resources
 
-- url: .*
+- url: /.*
   script: main.app
 
 libraries:
