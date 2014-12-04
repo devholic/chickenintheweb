@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>치킨인더웹 : 이 세상 모든 치킨</title>
+	<script src="/jq/jquery.js" type="text/javascript"> </script>
+	<link href="/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/css/main.css" rel="stylesheet">
+</head>
+<body>
+	{% if email %}
+	<nav class="navbar navbar-fixed-top" role="navigation" id="header">
+		<div class="container-fluid" id="navbar-container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/">치킨인더웹</a>
+			</div>
+
+			<div class="collapse navbar-collapse">
+				<ul class="nav navbar-nav"> 
+					<li><a {% ifequal path '/chicken/brand/' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/chicken/brand">브랜드치킨</a></li>
+						<li><a {% ifequal path '/chicken/local/.*' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/chicken/local">동네치킨</a></li>
+						<li><a {% ifequal path '/order/bucket/.*' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/order/bucket">장바구니</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li><a {% ifequal path '/mypage' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/mypage">{{email}}</a></li>
+						<li><a class="navbar-menu" href="/logout">로그아웃</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	{% else %}
+	<nav class="navbar navbar-fixed-top" role="navigation" id="header">
+		<div class="container-fluid" id="navbar-container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="/">치킨인더웹</a>
+			</div>
+			</div>
+	</nav>
+	{% endif %}
+	<div id="bodyfill">
+		{% block bodyfill %}
+		{% endblock %}
+	</div>
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="/js/bootstrap.min.js"></script>
+</body>
+</html>

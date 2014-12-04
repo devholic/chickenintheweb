@@ -16,6 +16,10 @@ body {
 	margin-bottom: 0px;
 }
 
+.active {
+	background-color: #D32F2F;
+}
+
 .navbar-brand {
 	font-family: 'Hanna', serif;
 	letter-spacing: 0.5px;
@@ -42,6 +46,11 @@ body {
 .bg2{
 	background-image: url('../resources/background_chicken2.jpg');
 }
+#bodyfill{
+	height:100%;
+	width:100%;
+}
+
 #errorpage_background{
 	height:100%;
 	width:100%;
@@ -71,6 +80,10 @@ body {
 .loginpage_link:hover {
 	color: #FFFFFF;
 	font-size:10pt;
+	font-family: "Nanum Gothic", sans-serif;
+}
+
+.navbar-menu {
 	font-family: "Nanum Gothic", sans-serif;
 }
 

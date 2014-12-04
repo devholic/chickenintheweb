@@ -1,0 +1,35 @@
+{% extends "template_base.htm" %}
+	{% block bodyfill %}
+	{% if email %}
+	
+	{% else %}
+	<div class="bg2" id="loginpage_background">
+		<div class="container vertical-center" id="loginpage_container">
+			<div id="loginpage_wrapper">
+				<div id="loginpage_content">
+				회원가입
+				</div> <!-- loginpage -->
+				<div id="loginpage_input">
+					<form class="accountinput" role="form" method="post" action="/login">
+						<label for="inputEmail" class="sr-only">이메일 주소</label>
+						<input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
+						<label for="inputPassword" class="sr-only">비밀번호</label>
+						<input type="password" name="password" id="inputPassword" class="form-control" placeholder="비밀번호" required>
+						<label for="inputName" class="sr-only">이름
+						</label>
+						<input type="text" name="name" id="inputName" class="form-control" placeholder="이름" required>
+						<label for="inputAddress" class="sr-only">주소
+						</label>
+						<input type="text" name="address" id="inputAddress" class="form-control" placeholder="주소" required>
+						<label for="inputNumber" class="sr-only">전화번호
+						</label>
+						<input type="tel" name="number" id="inputNumber" class="form-control" placeholder="전화번호" required>
+						<button id="registerbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">회원가입</button>
+					</form>
+				</div>
+				<a class="loginpage_link" href="/security">개인정보 취급방침</a>
+			</div> <!-- loginpage_wrapper -->
+		</div> <!-- container -->
+	</div>
+	{% endif %}
+{% endblock %}
