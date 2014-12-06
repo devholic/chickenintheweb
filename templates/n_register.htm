@@ -1,35 +1,49 @@
 {% extends "template_base.htm" %}
-	{% block bodyfill %}
-	{% if email %}
-	
-	{% else %}
-	<div class="bg2" id="loginpage_background">
-		<div class="container vertical-center" id="loginpage_container">
-			<div id="loginpage_wrapper">
-				<div id="loginpage_content">
-				회원가입
-				</div> <!-- loginpage -->
-				<div id="loginpage_input">
-					<form class="accountinput" role="form" method="post" action="/login">
-						<label for="inputEmail" class="sr-only">이메일 주소</label>
-						<input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
-						<label for="inputPassword" class="sr-only">비밀번호</label>
-						<input type="password" name="password" id="inputPassword" class="form-control" placeholder="비밀번호" required>
-						<label for="inputName" class="sr-only">이름
-						</label>
-						<input type="text" name="name" id="inputName" class="form-control" placeholder="이름" required>
-						<label for="inputAddress" class="sr-only">주소
-						</label>
-						<input type="text" name="address" id="inputAddress" class="form-control" placeholder="주소" required>
-						<label for="inputNumber" class="sr-only">전화번호
-						</label>
-						<input type="tel" name="number" id="inputNumber" class="form-control" placeholder="전화번호" required>
-						<button id="registerbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">회원가입</button>
-					</form>
-				</div>
-				<a class="loginpage_link" href="/security">개인정보 취급방침</a>
-			</div> <!-- loginpage_wrapper -->
-		</div> <!-- container -->
+{% block bodyfill %}
+{% if email %}
+
+{% else %}
+<div class="container" id="default_container" >
+{% if err %}
+<div class="alert alert-danger alert-dismissible" role="alert">
+<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">닫기</span></button>
+<strong>오류가 발생했어요! : </strong> {{err}}
+</div>
+{% else %}
+{% endif %}
+	<div id="registerpage_title">
+		치킨인더웹 계정 만들기 
 	</div>
-	{% endif %}
+	<div class="promotion">
+		<h2>치킨인더웹 특가상품</h2>
+		<p>가격은 더 싸게, 치킨은 더 맛있게.</p>
+		<h2>너와 나의 치킨 고리</h2>
+		<p>사람들이 주문한 치킨에 대한 리뷰를 확인하실 수 있습니다.</p>
+		<center><a class="twitter-timeline" href="https://twitter.com/hashtag/chickenintheweb" data-widget-id="541251170207932416">#chickenintheweb 관련 트윗</a></center>
+		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+	</div>
+	<div style="float:right; width:50%;">
+		<form class="registerinput" role="form" method="post" action="/register">
+			<label for="inputEmail" class="sr-only">이메일 주소</label>
+			<input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
+			<label for="inputPassword" class="sr-only">비밀번호</label>
+			<input type="password" name="password" id="inputPassword" class="form-control" placeholder="비밀번호" required>
+			<label for="inputName" class="sr-only">이름
+			</label>
+			<input type="text" name="name" id="inputName" class="form-control" placeholder="이름" required>
+			<label for="inputAddress" class="sr-only">주소
+			</label>
+			<input type="text" name="address" id="inputAddress" class="form-control" placeholder="주소" required>
+			<label for="inputNumber" class="sr-only">전화번호
+			</label>
+			<input type="tel" name="number" id="inputNumber" class="form-control" placeholder="전화번호" required>
+			<div class="g-recaptcha" id="captcha" align="left" data-sitekey="6Ldi6f4SAAAAAGTajyIbi7SyJanSlNAPhmDLhfjd"></div>
+			<button id="registerbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">회원가입</button>
+			<div><p class="registerpage" align="center">회원가입을 클릭하시면 
+				<a class="registerpage_link" href="/security">개인정보 취급방침</a>과<br><a class="registerpage_link" href="/agreement">약관</a>에 동의한것으로 간주됩니다. </div>
+			</div> <!-- loginpage_wrapper -->
+		</form>
+	</div>
+</div> <!-- container -->
+{% endif %}
 {% endblock %}

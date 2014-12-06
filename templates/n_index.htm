@@ -3,37 +3,12 @@
 	{% if email %}
 	
 	{% else %}
-	<div class="bg2" id="loginpage_background">
+	<div class="chickenimg" id="loginpage_background">
 		<div class="container vertical-center" id="loginpage_container">
 			<div id="loginpage_wrapper">
 				<div id="loginpage_content">
+				너와 나의 치킨 고리<br> 이건 우리 안의 치킨
 				</div> <!-- loginpage -->
-				<script type="text/javascript">
-					var text = ["너와 나의 치킨 고리<br> 이건 우리 안의 치킨", "또래 오래 굽네 네네<br> 멕시 카나 페리 카나", "오늘 먹을 치킨을<br> 내일로 미루지 말자"];
-					var url = ["../resources/background_chicken.jpg","../resources/background_chicken2.jpg","../resources/background_chicken.jpg"]
-					var counter = 0;
-					var elem = document.getElementById("loginpage_content");
-					change();
-					setInterval(change, 10000);
-					function change() {
-						elem.innerHTML = text[counter];
-						var $body = $('#loginpage_background');
-						if($body.hasClass('bg1'))
-						{
-							$body.removeClass('bg1');
-							$body.addClass('bg2');
-						}
-						else {        
-							$body.removeClass('bg2');
-							$body.addClass('bg1');
-						}
-						counter++;
-						if(counter >= text.length) { 
-							counter = 0; 
-						}
-					}
-					
-				</script>
 				<div id="loginpage_input">
 					<form class="accountinput" role="form" method="post" action="/login">
 						<label for="inputEmail" class="sr-only">이메일 주소</label>

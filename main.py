@@ -8,6 +8,7 @@ import datetime
 import time
 import hashlib
 import urllib2
+import json
 from webapp2_extras import sessions
 from google.appengine.api import mail
 from google.appengine.ext import db
@@ -73,43 +74,47 @@ class RegisterHandler(BaseHandler):
 		Render(self, 'n_register.htm', {})
 
 	def post(self):
-		req_email = self.request.get('email')
-		query = db.Query(User)
-		q = query.filter("email ==",email)
-		if q.count() == 1:
-			# 유저가 존재하는 경우
-			u = q.get()
-			req_pw = self.request.get('password')
-			# 로그인 시도
-			if u.password == hashlib.sha256(req_pw + u.salt).hexdigest():
-				self.session['email'] = email
-				Render(self, 'n_index.htm', {})
+		captcha = self.request.get('g-recaptcha-response')
+		url = "https://www.google.com/recaptcha/api/siteverify?secret=6Ldi6f4SAAAAAJ5WXvkKk1cSzc7L9C1CALkCnITs&response="+captcha
+		chk = urllib2.urlopen(url)
+		data = json.load(chk)
+		if data['success']:
+			# Captcha 성공
+			req_email = self.request.get('email')
+			query = db.Query(User)
+			q = query.filter("email ==", req_email)
+			if q.count() == 1:
+				# 유저가 존재하는 경우
+				u = q.get()
+				req_pw = self.request.get('password')
+				# 로그인 시도
+				if u.password == hashlib.sha256(req_pw + u.salt).hexdigest():
+					self.session['email'] = email
+					Render(self, 'n_index.htm', {})
+				else:
+				# 만약 아니라면 이미 있는 계정이라고 form update
+					Render(self, 'n_register.htm', {'err': '이미 있는 계정입니다.'})
 			else:
-			# 만약 아니라면 이미 있는 계정이라고 form update
-				$.ajax({
-				type: "POST",
-				url: "https://myapp.appspot.com/service",
-				contentType: "application/json; charset=utf-8",
-				data: data,
-				success: function(data) {
-				alert("AJAX done");
-				}
-				}); 
+				# 유저를 추가
+				saltstring = Salt()
+				user = User()
+				user.email = req_email
+				user.password = hashlib.sha256(self.request.get('password') + saltstring).hexdigest() # Hash 후 저장
+				user.name = self.request.get('name')
+				user.address = self.request.get('address')
+				user.number = self.request.get('number')
+				user.salt = saltstring # Salt
+				user.isSeller = False # 판매자 False
+				user.isAdmin = False # 관리자 False
+				user.put()
+				self.session['email'] = user.email
+				self.session['name'] = user.name
+				Render(self, 'n_index.htm', {})
 		else:
-			# 유저를 추가
-			user = User()
-			user.email = self.request.get('email')
-			user.password = hashlib.sha256(self.request.get('password') + Salt()).hexdigest() # Hash 후 저장
-			user.name = self.request.get('name')
-			user.address = self.request.get('address')
-			user.number = self.request.get('number')
-			user.salt = saltstring # Salt
-			user.isSeller = False # 판매자 False
-			user.isAdmin = False # 관리자 False
-			user.put()
-			self.session['email'] = email
-			self.session['name'] = name
-			Render(self, 'n_index.htm', {})
+			if "response" in str(data['error-codes']):
+				Render(self, 'n_register.htm', {'err': 'Captcha가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
+			else:
+				Render(self, 'n_register.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
 
 class LoginHandler(BaseHandler):
 	def get(self):
