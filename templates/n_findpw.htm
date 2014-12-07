@@ -1,0 +1,28 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+{% if email %}
+
+{% else %}
+<div class="container" id="default_container" >
+	{% if err %}
+	<div class="alert alert-danger alert-dismissible" role="alert">
+		<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">닫기</span></button>
+		<strong>오류가 발생했어요! : </strong> {{err}}
+	</div>
+	{% else %}
+	{% endif %}
+	<div id="registerpage_title">
+		비밀번호를 잊어버리셨나요? 
+	</div>
+	<div class="findpw">
+	<p>걱정하지 마세요. 가입하셨을 때 입력하신 이메일 주소를 입력해주시면<br>비밀번호를 초기화할 수 있는 링크를 보내드립니다.</p>
+	<form class="findpwinput" role="form" method="post" action="/findpw">
+		<label for="inputEmail" class="sr-only">이메일 주소</label>
+		<input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
+		<div class="g-recaptcha" id="captcha" align="left" data-sitekey="6Ldi6f4SAAAAAGTajyIbi7SyJanSlNAPhmDLhfjd"></div>
+		<button id="registerbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">비밀번호 찾기</button>
+	</form>
+	</div>
+</div> <!-- container -->
+{% endif %}
+{% endblock %}

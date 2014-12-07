@@ -151,30 +151,40 @@ class LogoutHandler(BaseHandler):
 
 class UserpwHandler(BaseHandler):
 	def get(self):
-		Render(self, 'n_index.htm', {})
+		Render(self, 'n_findpw.htm', {})
 
 	def post(self):
-		email = self.request.get('email')
-		query = db.Query(User)
-		q = query.filter("email ==",email)
-		if q.count() == 1:
-			# 유저가 존재하는 경우
-			user = UserRecovery()
-			user.email = email
-			code = Salt()
-			user.code = code
-			t = int(time.time()) + 1800
-			user.expire = t
-			user.put()
-			message = mail.EmailMessage(sender="no-reply@chickenintheweb.appspotmail.com",
+		captcha = self.request.get('g-recaptcha-response')
+		url = "https://www.google.com/recaptcha/api/siteverify?secret=6Ldi6f4SAAAAAJ5WXvkKk1cSzc7L9C1CALkCnITs&response="+captcha
+		chk = urllib2.urlopen(url)
+		data = json.load(chk)
+		if data['success']:
+			email = self.request.get('email')
+			query = db.Query(User)
+			q = query.filter("email ==",email)
+			if q.count() == 1:
+				# 유저가 존재하는 경우
+				user = UserRecovery()
+				user.email = email
+				code = Salt()
+				user.code = code
+				t = int(time.time()) + 1800
+				user.expire = t
+				user.put()
+				message = mail.EmailMessage(sender="no-reply@chickenintheweb.appspotmail.com",
                             subject="치킨인더웹 비밀번호 재설정 코드입니다.")
-			message.to = email
-			message.body = """
-			비밀번호 재설정 코드는 %s 입니다.
-			""" % code
-			message.send()
+				message.to = email
+				message.body = """
+				비밀번호 재설정 코드는 %s 입니다.
+				""" % code
+				message.send()
+			else:
+				Render(self, 'n_findpw.htm', {'err':'입력하신 이메일에 해당되는 계정을 찾을 수 없습니다. 확인하신 다음 다시 시도해주세요.'})
 		else:
-			Render(self, 'error.htm', {'errorcode':'400'})
+			if "response" in str(data['error-codes']):
+				Render(self, 'n_findpw.htm', {'err': 'Captcha가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
+			else:
+				Render(self, 'n_findpw.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
 
 class MainHandler(BaseHandler):
     def get(self):

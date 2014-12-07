@@ -19,33 +19,60 @@
 		<div class="container-fluid" id="navbar-container">
 			<div class="navbar-header">
 				<a class="navbar-brand" href="/">치킨인더웹</a>
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            	<span class="icon-bar"></span>
+           		<span class="icon-bar"></span>
+           		<span class="icon-bar"></span>
+          		</button>
 			</div>
-
-			<div class="collapse navbar-collapse">
-				<ul class="nav navbar-nav"> 
-					<li><a {% ifequal path '/chicken/brand/' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/chicken/brand">브랜드치킨</a></li>
-						<li><a {% ifequal path '/chicken/local/.*' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/chicken/local">동네치킨</a></li>
-						<li><a {% ifequal path '/order/bucket/.*' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/order/bucket">장바구니</a></li>
-					</ul>
-					<ul class="nav navbar-nav navbar-right">
-						<li><a {% ifequal path '/mypage' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/mypage">{{email}}</a></li>
-						<li><a class="navbar-menu" href="/logout">로그아웃</a></li>
-					</ul>
-				</div>
-			</div>
-		</nav>
+			<div class="navbar-collapse collapse">
+          		<ul class="nav navbar-nav">
+            	<li><a {% ifequal path '/chicken/brand/' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/chicken/brand">브랜드치킨</a></li>
+					<li><a {% ifequal path '/chicken/local/.*' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/chicken/local">동네치킨</a></li>
+					<li><a {% ifequal path '/order/bucket/.*' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/order/bucket">장바구니</a></li>
+          		</ul>
+          		<ul class="nav navbar-nav navbar-right">
+					<li><a {% ifequal path '/mypage' %} class="navbar-menu active" {% else %} class="navbar-menu" {% endifequal %} href="/mypage">{{email}}</a></li>
+					<li><a class="navbar-menu" href="/logout">로그아웃</a></li>
+				</ul>
+        	</div>
+		</div>
+	</nav>
 	{% else %}
 	<nav class="navbar navbar-fixed-top" role="navigation" id="header">
 		<div class="container-fluid" id="navbar-container">
 			<div class="navbar-header">
 				<a class="navbar-brand" href="/">치킨인더웹</a>
+				{% if path == '/register' or path == '/register/seller' %}
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            	<span class="icon-bar"></span>
+           		<span class="icon-bar"></span>
+           		<span class="icon-bar"></span>
+          		</button>
+          		{% endif %}
 			</div>
-			</div>
+            {% ifequal path '/register' %}
+			<div class="navbar-collapse collapse">
+          		<ul class="nav navbar-nav">
+						<li><a class="navbar-menu" href="/register/seller">판매자 회원가입</a></li>
+				
+          		</ul>
+        	</div>
+        	{% endifequal %}
+        	{% ifequal path '/register/seller' %}
+			<div class="navbar-collapse collapse">
+          		<ul class="nav navbar-nav">
+						<li><a class="navbar-menu" href="/register">일반 회원가입</a></li>
+				
+          		</ul>
+        	</div>
+        	{% endifequal %}
+		</div>
 	</nav>
-	{% endif %}
-	<div id="bodyfill">
-		{% block bodyfill %}
-		{% endblock %}
-	</div>
+{% endif %}
+<div id="bodyfill">
+	{% block bodyfill %}
+	{% endblock %}
+</div>
 </body>
 </html>

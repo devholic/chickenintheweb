@@ -26,6 +26,10 @@ body {
 	letter-spacing: 0.5px;
 }
 
+.navbar-header .icon-bar {
+    background-color: white;
+}
+
 .alert{
 	font-family: "Nanum Barun Gothic", sans-serif;
 }
@@ -112,6 +116,7 @@ body {
 
 .navbar-menu {
 	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
 }
 
 #loginpage_content {
@@ -142,6 +147,7 @@ body {
 	float:left; 
 	width:50%;
 }
+
 .promotion h2{
 color: #737373;
 font-family: 'Nanum Barun Gothic', serif;
@@ -157,6 +163,21 @@ text-align: center;
 margin-bottom: 30px;
 }
 
+.findpw h2{
+color: #737373;
+font-family: 'Nanum Barun Gothic', serif;
+font-weight: 400;
+text-align: center;
+}
+
+.findpw p{
+color: #737373;
+font-family: "Nanum Barun Gothic", sans-serif;
+font-weight: 300;
+text-align: center;
+margin-bottom: 10px;
+}
+
 .accountinput {	
 	border-radius: 2px;
 	margin: 5px auto;
@@ -169,6 +190,14 @@ margin-bottom: 30px;
 .registerinput {
 	background-color: #EEEEEE;
 	border-radius: 2px;
+	margin: 0px auto;
+	max-width: 330px;
+	padding: 10px;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 400;
+}
+
+.findpwinput {
 	margin: 0px auto;
 	max-width: 330px;
 	padding: 10px;
@@ -200,6 +229,8 @@ margin-bottom: 30px;
 }
 
 .btn-default { 
+	margin-top: 10px;
+	margin-bottom: 10px;
 	outline: none;
 	border-color: #F44336; 
 	background-color: #F44336;
@@ -208,6 +239,8 @@ margin-bottom: 30px;
 }
 
 .btn-default:hover { 
+	margin-top: 10px;
+	margin-bottom: 10px;
 	outline: none;
 	border-color: #E53935; 
 	background-color: #E53935; 
@@ -216,6 +249,8 @@ margin-bottom: 30px;
 }
 
 .btn-default:focus, .btn-default:active {
+	margin-top: 10px;
+	margin-bottom: 10px;
 	outline: none;
 	border-color: #D32F2F; 
 	background-color: #D32F2F; 
