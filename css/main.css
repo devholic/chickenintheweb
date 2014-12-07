@@ -11,14 +11,34 @@ body {
 	padding-top: 50px;
 }
 
+
+#bodyfill{
+	height:100%;
+	width:100%;
+}
+
+#default_container{
+	margin-bottom: 50px;
+}
+
+#header a {
+	color: #FFFFFF;
+}
+
+#header li a:hover {
+	background-color: #D32F2F;
+}
+
+.vertical-center {
+	display:table-cell;
+	vertical-align:middle;
+	text-align:center;
+}
+
 .navbar {
 	border-radius: 0;
 	background-color: #F44336;
 	margin-bottom: 0px;
-}
-
-.active {
-	background-color: #D32F2F;
 }
 
 .navbar-brand {
@@ -30,8 +50,22 @@ body {
     background-color: white;
 }
 
+.navbar-menu {
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+}
+
+.active {
+	background-color: #D32F2F;
+}
+
 .alert{
 	font-family: "Nanum Barun Gothic", sans-serif;
+}
+
+#captcha {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 #loginpage_background{
@@ -43,37 +77,23 @@ body {
 	background-position: center center;
 }
 
-.chickenimg{
-	background-image: url('../resources/background_chicken.jpg');
-}
-
-#bodyfill{
-	height:100%;
-	width:100%;
-}
-
-#errorpage_background{
-	height:100%;
-	width:100%;
-	display:table;
-	background-image: url('../resources/background_chicken.jpg');
-	background-size: cover;
-	background-repeat: no-repeat;
-	background-position: center center;
-}
-
-#default_container{
-	margin-bottom: 50px;
-}
-
-.vertical-center {
-	display:table-cell;
-	vertical-align:middle;
-	text-align:center;
-}
-
 #loginpage_wrapper{
 	margin: 0 auto;
+}
+
+#loginpage_content {
+	text-align: center;
+	color: #FFFFFF;
+	font-family: 'Hanna', serif;
+	font-size: 50px;
+}
+
+#loginbtn{
+	margin-bottom: 15px;
+}
+
+.chickenimg{
+	background-image: url('../resources/background_chicken.jpg');
 }
 
 .loginpage_link {
@@ -88,6 +108,25 @@ body {
 	font-size:10pt;
 	font-family: "Nanum Barun Gothic", sans-serif;
 	font-weight: 300;
+}
+
+.accountinput {	
+	border-radius: 2px;
+	margin: 5px auto;
+	max-width: 330px;
+	padding: 10px;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 400;
+}
+
+#registerpage_title {
+	text-align: center;
+	color: #555555;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 200;
+	font-size: 35px;
+	margin-top: 25px;
+	margin-bottom: 30px;
 }
 
 .registerpage {
@@ -114,38 +153,19 @@ body {
 	font-family: "Nanum Barun Gothic", sans-serif;
 }
 
-.navbar-menu {
+.registerinput {
+	background-color: #EEEEEE;
+	border-radius: 2px;
+	margin: 0px auto;
+	max-width: 330px;
+	padding: 10px;
 	font-family: "Nanum Barun Gothic", sans-serif;
-	font-weight: 300;
-}
-
-#loginpage_content {
-	text-align: center;
-	color: #FFFFFF;
-	font-family: 'Hanna', serif;
-	font-size: 45pt;
-}
-
-#captcha {
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
-
-#registerpage_title {
-	text-align: center;
-	color: #555555;
-	font-family: 'Nanum Barun Gothic', serif;
-	font-weight: 200;
-	font-size: 38px;
-	margin-top: 27px;
-	margin-bottom: 50px;
+	font-weight: 400;
 }
 
 .promotion {
-	margin:0 auto;
 	height: 100%;
-	float:left; 
-	width:50%;
+	margin-bottom: 30px;
 }
 
 .promotion h2{
@@ -163,6 +183,62 @@ text-align: center;
 margin-bottom: 30px;
 }
 
+.homepromotion h2{
+color: #737373;
+font-family: 'Nanum Barun Gothic', serif;
+font-weight: 400;
+}
+
+.homepromotion h2 small{
+color: #737373;
+font-family: "Nanum Barun Gothic", sans-serif;
+font-weight: 200;
+}
+
+#about_title {
+	color: #555555;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 200;
+	font-size: 35px;
+	margin-top: 25px;
+	margin-bottom: 30px;
+}
+
+.about h2{
+color: #737373;
+font-family: 'Nanum Barun Gothic', serif;
+font-weight: 400;
+margin-top: 25px;
+margin-bottom: 30px;
+}
+
+.about h4{
+color: #737373;
+font-family: "Nanum Barun Gothic", sans-serif;
+font-weight: 200;
+}
+
+.about p{
+color: #737373;
+font-family: "Nanum Barun Gothic", sans-serif;
+font-weight: 300;
+margin-bottom: 30px;
+}
+
+.about a {
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 400;
+	text-decoration:underline;
+}
+
+.about a:hover {
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 400;
+	text-decoration:underline;
+}
+
 .findpw h2{
 color: #737373;
 font-family: 'Nanum Barun Gothic', serif;
@@ -176,25 +252,6 @@ font-family: "Nanum Barun Gothic", sans-serif;
 font-weight: 300;
 text-align: center;
 margin-bottom: 10px;
-}
-
-.accountinput {	
-	border-radius: 2px;
-	margin: 5px auto;
-	max-width: 330px;
-	padding: 10px;
-	font-family: "Nanum Barun Gothic", sans-serif;
-	font-weight: 400;
-}
-
-.registerinput {
-	background-color: #EEEEEE;
-	border-radius: 2px;
-	margin: 0px auto;
-	max-width: 330px;
-	padding: 10px;
-	font-family: "Nanum Barun Gothic", sans-serif;
-	font-weight: 400;
 }
 
 .findpwinput {
@@ -222,10 +279,6 @@ margin-bottom: 10px;
 	margin-top: 10px;
 	margin-bottom: 10px;
 	font-size: 16px;
-}
-
-#loginbtn{
-	margin-bottom: 15px;
 }
 
 .btn-default { 
@@ -258,10 +311,3 @@ margin-bottom: 10px;
 	font-weight: 300;
 }
 
-#header a {
-	color: #FFFFFF;
-}
-
-#header li a:hover {
-	background-color: #D32F2F;
-}

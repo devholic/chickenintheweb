@@ -89,7 +89,7 @@ class RegisterHandler(BaseHandler):
 				req_pw = self.request.get('password')
 				# 로그인 시도
 				if u.password == hashlib.sha256(req_pw + u.salt).hexdigest():
-					self.session['email'] = email
+					self.session['email'] = req_email
 					Render(self, 'n_index.htm', {})
 				else:
 				# 만약 아니라면 이미 있는 계정이라고 form update
@@ -112,9 +112,56 @@ class RegisterHandler(BaseHandler):
 				Render(self, 'n_index.htm', {})
 		else:
 			if "response" in str(data['error-codes']):
-				Render(self, 'n_register.htm', {'err': 'Captcha가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
+				Render(self, 'n_register.htm', {'err': 'reCAPTCHA가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
 			else:
 				Render(self, 'n_register.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
+
+class SellerRegisterHandler(BaseHandler):
+	def get(self):
+		Render(self, 'n_seller_register.htm', {})
+
+	def post(self):
+		captcha = self.request.get('g-recaptcha-response')
+		url = "https://www.google.com/recaptcha/api/siteverify?secret=6Ldi6f4SAAAAAJ5WXvkKk1cSzc7L9C1CALkCnITs&response="+captcha
+		chk = urllib2.urlopen(url)
+		data = json.load(chk)
+		if data['success']:
+			# Captcha 성공
+			req_email = self.request.get('email')
+			query = db.Query(User)
+			q = query.filter("email ==", req_email)
+			if q.count() == 1:
+				# 유저가 존재하는 경우
+				u = q.get()
+				req_pw = self.request.get('password')
+				# 로그인 시도
+				if u.password == hashlib.sha256(req_pw + u.salt).hexdigest():
+					self.session['email'] = req_email
+					Render(self, 'n_index.htm', {})
+				else:
+				# 만약 아니라면 이미 있는 계정이라고 form update
+					Render(self, 'n_register.htm', {'err': '이미 있는 계정입니다.'})
+			else:
+				# 유저를 추가
+				saltstring = Salt()
+				user = User()
+				user.email = req_email
+				user.password = hashlib.sha256(self.request.get('password') + saltstring).hexdigest() # Hash 후 저장
+				user.name = self.request.get('name')
+				user.address = self.request.get('address')
+				user.number = self.request.get('number')
+				user.salt = saltstring # Salt
+				user.isSeller = True # 판매자 False
+				user.isAdmin = False # 관리자 False
+				user.put()
+				self.session['email'] = user.email
+				self.session['name'] = user.name
+				Render(self, 'n_index.htm', {})
+		else:
+			if "response" in str(data['error-codes']):
+				Render(self, 'n_seller_register.htm', {'err': 'reCAPTCHA가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
+			else:
+				Render(self, 'n_seller_register.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
 
 class LoginHandler(BaseHandler):
 	def get(self):
@@ -188,10 +235,36 @@ class UserpwHandler(BaseHandler):
 
 class MainHandler(BaseHandler):
     def get(self):
-		logging.info(self.request.path)
-		if Render(self,self.request.path):
-			return
 		Render(self, 'n_index.htm', {})
+
+class BrandHandler(BaseHandler):
+    def get(self):
+		if self.session.get('email'):
+			Render(self, 'n_brand.htm', {})
+		else:
+			Render(self, 'n_index.htm', {})
+
+class LocalHandler(BaseHandler):
+    def get(self):
+		if self.session.get('email'):
+			Render(self, 'n_local.htm', {})
+		else:
+			Render(self, 'n_index.htm', {})
+
+class OrderBucketHandler(BaseHandler):
+    def get(self):
+		if self.session.get('email'):
+			Render(self, 'n_order_bucket.htm', {})
+		else:
+			Render(self, 'n_index.htm', {})
+
+class TermsHandler(BaseHandler):
+    def get(self):
+		Render(self, 'terms.htm', {})
+
+class SecurityHandler(BaseHandler):
+    def get(self):
+		Render(self, 'security.htm', {})
 
 config = {}
 
@@ -199,7 +272,7 @@ config['webapp2_extras.sessions'] = {
     'secret_key': 'dc458da48fa171a071a547a07d8e13f25dd2ed714a03f4d6fbae331e6b711139',
 }
 
-app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), ('/logout', LogoutHandler), ('/findpw', UserpwHandler), ('/.*', MainHandler)], debug=True, config=config)
+app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), ('/register/seller', SellerRegisterHandler), ('/logout', LogoutHandler), ('/findpw', UserpwHandler), ('/chicken/brand', BrandHandler), ('/chicken/local', LocalHandler), ('/order/bucket', OrderBucketHandler), ('/terms', TermsHandler), ('/security', SecurityHandler), ('/.*', MainHandler)], debug=True, config=config)
 
 def main():
 	app.run()
