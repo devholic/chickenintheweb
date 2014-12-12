@@ -29,12 +29,6 @@ body {
 	background-color: #D32F2F;
 }
 
-.vertical-center {
-	display:table-cell;
-	vertical-align:middle;
-	text-align:center;
-}
-
 .navbar {
 	border-radius: 0;
 	background-color: #F44336;
@@ -47,7 +41,7 @@ body {
 }
 
 .navbar-header .icon-bar {
-    background-color: white;
+	background-color: white;
 }
 
 .navbar-menu {
@@ -68,6 +62,12 @@ body {
 	margin-bottom: 10px;
 }
 
+.number-nospin input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+	-webkit-appearance: none; 
+	margin: 0; 
+}
+
 #loginpage_background{
 	height:100%;
 	width:100%;
@@ -85,7 +85,7 @@ body {
 	text-align: center;
 	color: #FFFFFF;
 	font-family: 'Hanna', serif;
-	font-size: 50px;
+	font-size: 45px;
 }
 
 #loginbtn{
@@ -96,6 +96,31 @@ body {
 	background-image: url('../resources/background_chicken.jpg');
 }
 
+.loginpage_container{
+	height: 100%;
+	display: table;
+	vertical-align: middle;
+	padding-top: 30px;
+	padding-bottom: 30px;
+}
+
+.vertical-center-row{
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.noti {
+	background-color: #FFFFFF;
+	padding: 3px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	text-align: center;
+}
+
+.noti-danger h4 {
+	color: #F44336;
+}
+
 .loginpage_link {
 	color: #FFFFFF;
 	font-size: 10pt;
@@ -104,6 +129,13 @@ body {
 }
 
 .loginpage_link:hover {
+	color: #FFFFFF;
+	font-size:10pt;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+}
+
+.loginpage_link:active {
 	color: #FFFFFF;
 	font-size:10pt;
 	font-family: "Nanum Barun Gothic", sans-serif;
@@ -153,6 +185,15 @@ body {
 	font-family: "Nanum Barun Gothic", sans-serif;
 }
 
+.registerpage_link:active {
+	color: #555555;
+	font-size: 10pt;
+	font-weight:bold;
+	text-decoration:underline;
+	font-family: "Nanum Barun Gothic", sans-serif;
+}
+
+
 .registerinput {
 	background-color: #EEEEEE;
 	border-radius: 2px;
@@ -169,30 +210,78 @@ body {
 }
 
 .promotion h2{
-color: #737373;
-font-family: 'Nanum Barun Gothic', serif;
-font-weight: 400;
-text-align: center;
+	color: #737373;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 400;
+	text-align: center;
 }
 
 .promotion p{
-color: #737373;
-font-family: "Nanum Barun Gothic", sans-serif;
-font-weight: 300;
-text-align: center;
-margin-bottom: 30px;
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+	text-align: center;
+	margin-bottom: 30px;
 }
 
 .homepromotion h2{
-color: #737373;
-font-family: 'Nanum Barun Gothic', serif;
-font-weight: 400;
+	color: #000000;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 400;
 }
 
 .homepromotion h2 small{
-color: #737373;
-font-family: "Nanum Barun Gothic", sans-serif;
-font-weight: 200;
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
+.homepromotion a{
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
+.sell-add-parent {
+	padding-bottom: 3px;
+}
+
+.sell-add-title h4 {
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
+.sell-add-title2 {
+	padding-top: 9px;
+	padding-bottom: 3px;
+}
+
+.sell-add-title2 h4 {
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
+.sell-add-title3 h5 {
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
+.sell-add-title3 a{
+	color: #F44336;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
+.sellinput {	
+	border-radius: 2px;
+	margin: 0px;
+	max-width: 330px;
+	padding: 0px;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
 }
 
 #about_title {
@@ -205,24 +294,24 @@ font-weight: 200;
 }
 
 .about h2{
-color: #737373;
-font-family: 'Nanum Barun Gothic', serif;
-font-weight: 400;
-margin-top: 25px;
-margin-bottom: 30px;
+	color: #737373;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 400;
+	margin-top: 25px;
+	margin-bottom: 30px;
 }
 
 .about h4{
-color: #737373;
-font-family: "Nanum Barun Gothic", sans-serif;
-font-weight: 200;
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
 }
 
 .about p{
-color: #737373;
-font-family: "Nanum Barun Gothic", sans-serif;
-font-weight: 300;
-margin-bottom: 30px;
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+	margin-bottom: 30px;
 }
 
 .about a {
@@ -240,18 +329,18 @@ margin-bottom: 30px;
 }
 
 .findpw h2{
-color: #737373;
-font-family: 'Nanum Barun Gothic', serif;
-font-weight: 400;
-text-align: center;
+	color: #737373;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 400;
+	text-align: center;
 }
 
 .findpw p{
-color: #737373;
-font-family: "Nanum Barun Gothic", sans-serif;
-font-weight: 300;
-text-align: center;
-margin-bottom: 10px;
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+	text-align: center;
+	margin-bottom: 10px;
 }
 
 .findpwinput {
@@ -260,6 +349,28 @@ margin-bottom: 10px;
 	padding: 10px;
 	font-family: "Nanum Barun Gothic", sans-serif;
 	font-weight: 400;
+}
+
+.card:hover{
+	border: 1px solid #F44336;
+}
+
+.card-content h3{
+	color: #555555;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 400;
+}
+
+.card-content h5{
+	color: #737373;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 400;
+}
+
+.card-content h6{
+	color: #737373;
+	font-family: 'Nanum Barun Gothic', serif;
+	font-weight: 300;
 }
 
 .form-control {

@@ -18,12 +18,26 @@ class User(db.Model):
 	email = db.StringProperty() # 이메일
 	password = db.StringProperty() # 비밀번호
 	name = db.StringProperty() # 이름
+	storename = db.StringProperty() # 판매자 전용 속성 : 이름
 	address = db.StringProperty() # 주소
 	number = db.StringProperty() # 전화번호
 	salt = db.StringProperty() # Salt
 	created_at = db.DateProperty(auto_now_add=True) # Created At
 	isSeller = db.BooleanProperty() # 판매자인지 
 	isAdmin = db.BooleanProperty() # 관리자인지
+
+class Chicken(db.Model): # 판매 치킨
+	seller = db.ReferenceProperty() # 셀러정보
+	name = db.StringProperty() # 이름
+	quantity = db.IntegerProperty() # 수량
+	price = db.IntegerProperty() # 가격
+	isBrand = db.BooleanProperty() # 판매자구분
+
+class ChickenOption(db.Model): # 치킨 옵션
+	chicken = db.ReferenceProperty() # 셀러정보
+	name = db.StringProperty() # 이름
+	quantity = db.IntegerProperty() # 수량
+	price = db.IntegerProperty() # 가격
 
 class UserRecovery(db.Model):
 	email = db.StringProperty() # 이메일
@@ -36,8 +50,11 @@ def Render(handler, path = "n_index.htm", values ={}):
 		return False
 	d = dict(values)
 	email = handler.session.get('email')
+	seller = handler.session.get('seller')
 	if email:
 		d['email'] = email
+	if seller:
+		d['seller'] = seller
 	d['path'] = handler.request.path
 	outstr = template.render(fpath, d)
 	handler.response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
@@ -90,7 +107,7 @@ class RegisterHandler(BaseHandler):
 				# 로그인 시도
 				if u.password == hashlib.sha256(req_pw + u.salt).hexdigest():
 					self.session['email'] = req_email
-					Render(self, 'n_index.htm', {})
+					self.redirect("/")
 				else:
 				# 만약 아니라면 이미 있는 계정이라고 form update
 					Render(self, 'n_register.htm', {'err': '이미 있는 계정입니다.'})
@@ -109,7 +126,7 @@ class RegisterHandler(BaseHandler):
 				user.put()
 				self.session['email'] = user.email
 				self.session['name'] = user.name
-				Render(self, 'n_index.htm', {})
+				self.redirect("/")
 		else:
 			if "response" in str(data['error-codes']):
 				Render(self, 'n_register.htm', {'err': 'reCAPTCHA가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
@@ -118,7 +135,7 @@ class RegisterHandler(BaseHandler):
 
 class SellerRegisterHandler(BaseHandler):
 	def get(self):
-		Render(self, 'n_seller_register.htm', {})
+		Render(self, 'n_register_seller.htm', {})
 
 	def post(self):
 		captcha = self.request.get('g-recaptcha-response')
@@ -137,10 +154,12 @@ class SellerRegisterHandler(BaseHandler):
 				# 로그인 시도
 				if u.password == hashlib.sha256(req_pw + u.salt).hexdigest():
 					self.session['email'] = req_email
-					Render(self, 'n_index.htm', {})
+					if u.isSeller:
+						self.session['seller'] = 'true'
+					self.redirect("/")
 				else:
 				# 만약 아니라면 이미 있는 계정이라고 form update
-					Render(self, 'n_register.htm', {'err': '이미 있는 계정입니다.'})
+					Render(self, 'n_register_seller.htm', {'err': '이미 있는 계정입니다.'})
 			else:
 				# 유저를 추가
 				saltstring = Salt()
@@ -156,12 +175,12 @@ class SellerRegisterHandler(BaseHandler):
 				user.put()
 				self.session['email'] = user.email
 				self.session['name'] = user.name
-				Render(self, 'n_index.htm', {})
+				self.redirect("/")
 		else:
 			if "response" in str(data['error-codes']):
-				Render(self, 'n_seller_register.htm', {'err': 'reCAPTCHA가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
+				Render(self, 'n_register_seller.htm', {'err': 'reCAPTCHA가 정상적으로 확인되지 않았습니다. 다시 시도해주세요.'})
 			else:
-				Render(self, 'n_seller_register.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
+				Render(self, 'n_register_seller.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
 
 class LoginHandler(BaseHandler):
 	def get(self):
@@ -177,24 +196,26 @@ class LoginHandler(BaseHandler):
 			u = q.get()
 			if u.password == hashlib.sha256(password + u.salt).hexdigest():
 				self.session['email'] = email
-				Render(self, 'n_index.htm', {})
+				if u.isSeller:
+					self.session['seller'] = 'true'
+				self.redirect("/")
 			else:
-				Render(self, 'error.htm', {'errorcode':'401'})
+				Render(self, 'n_index.htm', {'err':'없는 계정이거나 비밀번호가 맞지 않습니다.'})
 		else:
-			Render(self, 'error.htm', {'errorcode':'400'})
+			Render(self, 'n_index.htm', {'err':'없는 계정이거나 비밀번호가 맞지 않습니다.'})
 
 class LogoutHandler(BaseHandler):
 	def get(self):
 		if self.session.get('email'):
 			self.session.pop('email')
 			self.session.clear()
-		Render(self, 'n_index.htm', {})
+		self.redirect("/")
 
 	def post(self):
 		if self.session.get('email'):
 			self.session.pop('email')
 			self.session.clear()
-		Render(self, 'n_index.htm', {})
+		self.redirect("/")
 
 class UserpwHandler(BaseHandler):
 	def get(self):
@@ -233,6 +254,13 @@ class UserpwHandler(BaseHandler):
 			else:
 				Render(self, 'n_findpw.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
 
+class MypageHandler(BaseHandler):
+    def get(self):
+		if self.session.get('email'):
+			Render(self, 'n_mypage.htm', {})
+		else:
+			Render(self, 'n_index.htm', {})
+
 class MainHandler(BaseHandler):
     def get(self):
 		Render(self, 'n_index.htm', {})
@@ -258,6 +286,13 @@ class OrderBucketHandler(BaseHandler):
 		else:
 			Render(self, 'n_index.htm', {})
 
+class SellerNewChcieknHandler(BaseHandler):
+    def get(self):
+		if self.session.get('email') and self.session.get('seller'):
+			Render(self, 'n_seller_add.htm', {})
+		else:
+			Render(self, 'n_index.htm', {})
+
 class TermsHandler(BaseHandler):
     def get(self):
 		Render(self, 'terms.htm', {})
@@ -272,7 +307,7 @@ config['webapp2_extras.sessions'] = {
     'secret_key': 'dc458da48fa171a071a547a07d8e13f25dd2ed714a03f4d6fbae331e6b711139',
 }
 
-app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), ('/register/seller', SellerRegisterHandler), ('/logout', LogoutHandler), ('/findpw', UserpwHandler), ('/chicken/brand', BrandHandler), ('/chicken/local', LocalHandler), ('/order/bucket', OrderBucketHandler), ('/terms', TermsHandler), ('/security', SecurityHandler), ('/.*', MainHandler)], debug=True, config=config)
+app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), ('/register/seller', SellerRegisterHandler), ('/logout', LogoutHandler), ('/findpw', UserpwHandler), ('/chicken/brand', BrandHandler), ('/chicken/local', LocalHandler), ('/order/bucket', OrderBucketHandler), ('/mypage', MypageHandler), ('/seller/add', SellerNewChcieknHandler), ('/terms', TermsHandler), ('/security', SecurityHandler), ('/.*', MainHandler)], debug=True, config=config)
 
 def main():
 	app.run()

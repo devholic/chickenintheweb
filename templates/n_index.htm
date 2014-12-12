@@ -1,32 +1,66 @@
 {% extends "template_base.htm" %}
-	{% block bodyfill %}
-	{% if email %}
-	<div class="container">
-		<div class="page-header homepromotion">
-	  		<h2>치킨인더웹 <small>오늘의 치킨</small></h2>
+{% block bodyfill %}
+{% if email %}
+{% if seller %}
+<div class="container">
+	<div class="page-header homepromotion">
+		<h2>치킨인더웹 <small>판매자 홈 </small></h2>
+	</div>
+</div>
+{% else %}
+<div class="container">
+	<div class="page-header homepromotion">
+		<h2>치킨인더웹 <small>오늘의 치킨</small></h2>
+	</div>
+	<div class="row">
+		<div class="col-sm-6 col-md-4" onclick="window.location = '/chicken/brand';">
+			<div class="thumbnail card">
+				<img data-src="holder.js/300x300" alt="...">
+				<div class="caption card-content">
+					<h3>뉴욕속안심텐더</h3>
+					<h5>BBQ | ₩18,000</h3>
+					<h6>신비의 속살, 부드러움의 극치</p>
+				</div>
+			</div>
 		</div>
 	</div>
-	{% else %}
-	<div class="chickenimg" id="loginpage_background">
-		<div class="container vertical-center" id="loginpage_container">
-			<div id="loginpage_wrapper">
-				<div id="loginpage_content">
+</div>
+{% endif %}
+{% else %}
+<div class="chickenimg" id="loginpage_background">
+	<div class="container loginpage_container">
+	
+	<div class="row vertical-center-row">
+		<div class="col-lg-12">
+			<div class="row ">
+                <div class="col-lg-4 col-lg-offset-4">
+                <div id="loginpage_content">
 				너와 나의 치킨 고리<br> 이건 우리 안의 치킨
-				</div> <!-- loginpage -->
-				<div id="loginpage_input">
-					<form class="accountinput" role="form" method="post" action="/login">
-						<label for="inputEmail" class="sr-only">이메일 주소</label>
-						<input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
-						<label for="inputPassword" class="sr-only">비밀번호</label>
-						<input type="password" name="password" id="inputPassword" class="form-control" placeholder="비밀번호" required>
-						<button id="loginbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">로그인</button>
-					</form>
-				</div>
-				<a class="loginpage_link" href="/register">회원가입</a>
-				<span class="loginpage_link">  |  </span>
-				<a class="loginpage_link" href="/findpw">비밀번호 찾기</a>
-			</div> <!-- loginpage_wrapper -->
-		</div> <!-- container -->
+			</div> <!-- loginpage -->
+			<div id="loginpage_input">
+				<form class="accountinput" role="form" method="post" action="/login">
+					{% if err %}
+					<div class="noti noti-danger">
+ 					<p><h4>오류!</h4> 이메일 또는 비밀번호를 확인해주세요.</p>
+					</div>
+					{% endif %}
+					<label for="inputEmail" class="sr-only">이메일 주소</label>
+					<input type="email" name="email" id="inputEmail" class="form-control" placeholder="이메일 주소" required autofocus>
+					<label for="inputPassword" class="sr-only">비밀번호</label>
+					<input type="password" name="password" id="inputPassword" class="form-control" placeholder="비밀번호" required>
+					<button id="loginbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">로그인</button>
+				</form>
+			</div>
+				<center>
+					<a class="loginpage_link" href="/register">회원가입</a>
+					<span class="loginpage_link">  |  </span>
+					<a class="loginpage_link" href="/findpw">비밀번호 찾기</a>
+            	</center>
+            </div>
+        	</div>			
+		</div> <!-- loginpage_wrapper -->
+	</div> <!-- container -->
 	</div>
-	{% endif %}
+</div>
+{% endif %}
 {% endblock %}

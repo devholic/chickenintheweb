@@ -1,0 +1,62 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+<div class="container" id="default_container">
+		<div class="page-header homepromotion">
+	  		<h2>상품 추가 </h2><small><a >이미지 업로드</a> | <a >이미지 업로드(URL)</a> | <a href="#" onclick="addOption(); return false">옵션 추가</a></small>
+		</div>
+		<div id="seller_add_input">
+				<form class="sellinput" role="form" method="post" action="/seller/add" style="width: 330px;">
+					<div class="sell-add-title">
+					<h4>기본정보</h4>
+					</div>
+					<label for="inputName" class="sr-only">상품명</label>
+					<input type="name" name="name" id="inputName" class="form-control" placeholder="상품명" required autofocus>
+					<label for="inputPrice" class="sr-only">가격</label>
+					<input type="number" name="price" id="inputPrice" class="form-control" placeholder="가격" required>
+					<label for="inputQuantity" class="sr-only">수량</label>
+					<input type="number" name="quantity" id="inputQuantity" class="form-control" placeholder="수량" required>
+					<div class="sell-add-title2">
+					<h4>옵션정보</h4>
+					</div>
+					<div id="option"></div>
+					<div class="sell-add-title2">
+					<h4>이미지</h4>
+					</div>
+					<div id="image">
+					</div>
+				</form>
+		</div>
+		<script type="text/javascript">
+		var counter = 0;
+		var limit = 3;
+		function addOption(){
+			var parent = document.createElement('div');
+    		var title = document.createElement('div');
+    		var input = document.createElement('div');
+    		parent.id = "option"+(counter + 1);
+			parent.className = "sell-add-parent";
+    		title.className = "sell-add-title3";
+          	title.innerHTML = "<h5>옵션 " + (counter + 1) + " | <a href='#' onclick='deleteOption("+parent.id+"); return false'>삭제</a> </h5>";
+          	input.innerHTML = "<label for='inputOptionName' class='sr-only'>옵션명</label><input type='name' name='oname' id='inputOptionName' class='form-control' placeholder='옵션명'><label for='inputOptionPrice' class='sr-only'>가격</label><input type='number' name='oprice' id='inputOptionPrice' class='form-control' placeholder='가격'><label for='inputOptionQuantity' class='sr-only'>수량</label><input type='number' name='oquantity' id='inputOptionQuantity' class='form-control' placeholder='수량'>";
+			parent.appendChild(title)
+			parent.appendChild(input);
+			document.getElementById('option').appendChild(parent);
+			updateOption();
+          	counter++;
+     	}
+     	function deleteOption(gid){
+     		document.getElementById('option').removeChild(gid);
+     		updateOption();
+     	}
+     	function updateOption(){
+     		var a = 0;
+     		var child = document.getElementById('option').childNodes;
+     		for(i=0, j=child.length; i < j ; i++ ){
+    			var child2 = child[i].childNodes;
+    			child2[0].innerHTML = "<h5>옵션 " + (a + 1) + " | <a href='#' onclick='deleteOption("+child[i].id+"); return false'>삭제</a> </h5>";
+    			a++;
+			}
+     	}
+		</script>
+	</div>
+{% endblock %}
