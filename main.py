@@ -11,6 +11,7 @@ import urllib2
 import json
 from webapp2_extras import sessions
 from google.appengine.api import mail
+from google.appengine.api import images
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
@@ -23,7 +24,8 @@ class User(db.Model):
 	number = db.StringProperty() # 전화번호
 	salt = db.StringProperty() # Salt
 	created_at = db.DateProperty(auto_now_add=True) # Created At
-	isSeller = db.BooleanProperty() # 판매자인지 
+	isSeller = db.BooleanProperty() # 판매자인지
+	isBrandSeller = db.BooleanProperty() 
 	isAdmin = db.BooleanProperty() # 관리자인지
 
 class Chicken(db.Model): # 판매 치킨
@@ -31,13 +33,19 @@ class Chicken(db.Model): # 판매 치킨
 	name = db.StringProperty() # 이름
 	quantity = db.IntegerProperty() # 수량
 	price = db.IntegerProperty() # 가격
-	isBrand = db.BooleanProperty() # 판매자구분
+	intro = db.StringProperty() # 이름
+	thumb = db.BlobProperty()
 
 class ChickenOption(db.Model): # 치킨 옵션
 	chicken = db.ReferenceProperty() # 셀러정보
 	name = db.StringProperty() # 이름
 	quantity = db.IntegerProperty() # 수량
 	price = db.IntegerProperty() # 가격
+
+class ChickenImg(db.Model): # 치킨 옵션
+	chicken = db.ReferenceProperty() # 셀러정보
+	u = db.StringProperty() # 이름
+	f = db.BlobProperty()
 
 class UserRecovery(db.Model):
 	email = db.StringProperty() # 이메일
@@ -122,6 +130,7 @@ class RegisterHandler(BaseHandler):
 				user.number = self.request.get('number')
 				user.salt = saltstring # Salt
 				user.isSeller = False # 판매자 False
+				user.isBrandSeller = False
 				user.isAdmin = False # 관리자 False
 				user.put()
 				self.session['email'] = user.email
@@ -154,6 +163,7 @@ class SellerRegisterHandler(BaseHandler):
 				# 로그인 시도
 				if u.password == hashlib.sha256(req_pw + u.salt).hexdigest():
 					self.session['email'] = req_email
+					self.session['name'] = user.name
 					if u.isSeller:
 						self.session['seller'] = 'true'
 					self.redirect("/")
@@ -171,10 +181,12 @@ class SellerRegisterHandler(BaseHandler):
 				user.number = self.request.get('number')
 				user.salt = saltstring # Salt
 				user.isSeller = True # 판매자 False
+				user.isBrandSeller = False
 				user.isAdmin = False # 관리자 False
 				user.put()
 				self.session['email'] = user.email
 				self.session['name'] = user.name
+				self.session['seller'] = 'true'
 				self.redirect("/")
 		else:
 			if "response" in str(data['error-codes']):
@@ -196,6 +208,7 @@ class LoginHandler(BaseHandler):
 			u = q.get()
 			if u.password == hashlib.sha256(password + u.salt).hexdigest():
 				self.session['email'] = email
+				self.session['name'] = u.name
 				if u.isSeller:
 					self.session['seller'] = 'true'
 				self.redirect("/")
@@ -208,13 +221,21 @@ class LogoutHandler(BaseHandler):
 	def get(self):
 		if self.session.get('email'):
 			self.session.pop('email')
-			self.session.clear()
+		if self.session.get('name'):
+			self.session.pop('name')
+		if self.session.get('seller'):
+			self.session.pop('seller')
+		self.session.clear()
 		self.redirect("/")
 
 	def post(self):
 		if self.session.get('email'):
 			self.session.pop('email')
-			self.session.clear()
+		if self.session.get('name'):
+			self.session.pop('name')
+		if self.session.get('seller'):
+			self.session.pop('seller')
+		self.session.clear()
 		self.redirect("/")
 
 class UserpwHandler(BaseHandler):
@@ -255,51 +276,88 @@ class UserpwHandler(BaseHandler):
 				Render(self, 'n_findpw.htm', {'err': '시스템 에러입니다. 잠시후 다시 시도해주세요.'})
 
 class MypageHandler(BaseHandler):
-    def get(self):
+	def get(self):
 		if self.session.get('email'):
 			Render(self, 'n_mypage.htm', {})
 		else:
 			Render(self, 'n_index.htm', {})
 
 class MainHandler(BaseHandler):
-    def get(self):
-		Render(self, 'n_index.htm', {})
+	def get(self):
+		if self.session.get('email') and not self.session.get('seller'):
+			query = db.Query(Chicken)
+			result = query.fetch(limit=100)
+			for c in result:
+				c.pricestr = '₩'+format(c.price,',d')
+			Render(self, 'n_index.htm', {'chicken_list':result})
+		else:
+			Render(self, 'n_index.htm', {})
 
 class BrandHandler(BaseHandler):
-    def get(self):
+	def get(self):
 		if self.session.get('email'):
 			Render(self, 'n_brand.htm', {})
 		else:
 			Render(self, 'n_index.htm', {})
 
 class LocalHandler(BaseHandler):
-    def get(self):
+	def get(self):
 		if self.session.get('email'):
 			Render(self, 'n_local.htm', {})
 		else:
 			Render(self, 'n_index.htm', {})
 
 class OrderBucketHandler(BaseHandler):
-    def get(self):
+	def get(self):
 		if self.session.get('email'):
 			Render(self, 'n_order_bucket.htm', {})
 		else:
 			Render(self, 'n_index.htm', {})
 
-class SellerNewChcieknHandler(BaseHandler):
-    def get(self):
+class SellerNewChickenHandler(BaseHandler):
+	def get(self):
 		if self.session.get('email') and self.session.get('seller'):
 			Render(self, 'n_seller_add.htm', {})
 		else:
 			Render(self, 'n_index.htm', {})
 
+	def post(self):
+		if self.session.get('email') and self.session.get('seller'):
+			#self.request.get_all()
+			query = db.Query(User)
+			q = query.filter("email ==",self.session.get('email'))
+			u = q.get()
+			c = Chicken()
+			c.seller = u
+			c.name = self.request.get("name")
+			c.quantity = int(self.request.get("quantity"))
+			c.price = int(self.request.get("price"))
+			c.intro = self.request.get("intro")
+			ti = self.request.get("thumbimage")
+			c.thumb = db.Blob(ti)
+			c.isBrand = u.isBrandSeller
+			c.put()
+
 class TermsHandler(BaseHandler):
-    def get(self):
+	def get(self):
 		Render(self, 'terms.htm', {})
 
 class SecurityHandler(BaseHandler):
-    def get(self):
+	def get(self):
 		Render(self, 'security.htm', {})
+
+class ImageHandler(webapp2.RequestHandler):
+	def get(self):
+		if self.request.get("id"):
+			k = self.request.get("id")
+			r = db.get(k)
+			if r.thumb:
+				self.response.headers['Content-Type'] = 'image/png'
+				self.response.out.write(r.thumb)
+			else:
+				self.response.out.write("noimg")
+		else:
+			self.redirect('/')
 
 config = {}
 
@@ -307,7 +365,7 @@ config['webapp2_extras.sessions'] = {
     'secret_key': 'dc458da48fa171a071a547a07d8e13f25dd2ed714a03f4d6fbae331e6b711139',
 }
 
-app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), ('/register/seller', SellerRegisterHandler), ('/logout', LogoutHandler), ('/findpw', UserpwHandler), ('/chicken/brand', BrandHandler), ('/chicken/local', LocalHandler), ('/order/bucket', OrderBucketHandler), ('/mypage', MypageHandler), ('/seller/add', SellerNewChcieknHandler), ('/terms', TermsHandler), ('/security', SecurityHandler), ('/.*', MainHandler)], debug=True, config=config)
+app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), ('/register/seller', SellerRegisterHandler), ('/logout', LogoutHandler), ('/findpw', UserpwHandler), ('/chicken/brand', BrandHandler), ('/chicken/local', LocalHandler), ('/order/bucket', OrderBucketHandler), ('/mypage', MypageHandler), ('/seller/add', SellerNewChickenHandler), ('/terms', TermsHandler), ('/security', SecurityHandler), ('/blob/image', ImageHandler), ('/.*', MainHandler)], debug=True, config=config)
 
 def main():
 	app.run()

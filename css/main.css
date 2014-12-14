@@ -62,12 +62,6 @@ body {
 	margin-bottom: 10px;
 }
 
-.number-nospin input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-	-webkit-appearance: none; 
-	margin: 0; 
-}
-
 #loginpage_background{
 	height:100%;
 	width:100%;
@@ -224,6 +218,9 @@ input[type=number]::-webkit-outer-spin-button {
 	margin-bottom: 30px;
 }
 
+.homepromotion {
+	color: #737373;
+}
 .homepromotion h2{
 	color: #000000;
 	font-family: 'Nanum Barun Gothic', serif;
@@ -250,6 +247,10 @@ input[type=number]::-webkit-outer-spin-button {
 	color: #737373;
 	font-family: "Nanum Barun Gothic", sans-serif;
 	font-weight: 200;
+}
+
+#sell-thumb {
+	padding-top: 9px;
 }
 
 .sell-add-title2 {
@@ -349,6 +350,11 @@ input[type=number]::-webkit-outer-spin-button {
 	padding: 10px;
 	font-family: "Nanum Barun Gothic", sans-serif;
 	font-weight: 400;
+}
+
+#cardgrid{
+	margin-left: auto;
+    margin-right: auto;
 }
 
 .card:hover{

@@ -8,21 +8,31 @@
 	</div>
 </div>
 {% else %}
-<div class="container">
+<div id="default_container" class="container">
 	<div class="page-header homepromotion">
 		<h2>치킨인더웹 <small>오늘의 치킨</small></h2>
 	</div>
-	<div class="row">
-		<div class="col-sm-6 col-md-4" onclick="window.location = '/chicken/brand';">
-			<div class="thumbnail card">
-				<img data-src="holder.js/300x300" alt="...">
+	<div id="cardgrid" class="row">
+		{% for chicken in chicken_list %}
+		<div class="cardwrap col-xs-12 col-sm-6 col-md-4">
+			<div class="thumbnail card" onclick="window.location = '/chicken/brand';">
+				<img src="/blob/image?id={{ chicken.key }}" alt="...">
 				<div class="caption card-content">
-					<h3>뉴욕속안심텐더</h3>
-					<h5>BBQ | ₩18,000</h3>
-					<h6>신비의 속살, 부드러움의 극치</p>
+					<h3>{{ chicken.name }}</h3>
+					<h5>{{ chicken.seller.name }} | {{ chicken.pricestr }}</h3>
+					<h6>{{ chicken.intro }}</p>
 				</div>
 			</div>
 		</div>
+		{% endfor %}
+		<script type="text/javascript">		
+		var container = document.querySelector('#cardgrid');
+		var msnry;
+		// initialize Masonry after all images have loaded
+		imagesLoaded( container, function() {
+ 			msnry = new Masonry( container,{itemSelector: '.cardwrap'} );
+		});
+		</script>
 	</div>
 </div>
 {% endif %}

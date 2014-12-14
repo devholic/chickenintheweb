@@ -2,19 +2,26 @@
 {% block bodyfill %}
 <div class="container" id="default_container">
 		<div class="page-header homepromotion">
-	  		<h2>상품 추가 </h2><small><a >이미지 업로드</a> | <a >이미지 업로드(URL)</a> | <a href="#" onclick="addOption(); return false">옵션 추가</a></small>
+	  		<h2>상품 추가 </h2><small><a href="#" onclick="addImageFile(); return false">이미지 추가</a> | <a href="#" onclick="addOption(); return false">옵션 추가</a></small>
 		</div>
 		<div id="seller_add_input">
-				<form class="sellinput" role="form" method="post" action="/seller/add" style="width: 330px;">
+				<form class="sellinput" enctype="multipart/form-data" role="form" method="post" action="/seller/add">
 					<div class="sell-add-title">
 					<h4>기본정보</h4>
 					</div>
 					<label for="inputName" class="sr-only">상품명</label>
-					<input type="name" name="name" id="inputName" class="form-control" placeholder="상품명" required autofocus>
+					<input type="text" name="name" id="inputName" class="form-control" placeholder="상품명" required autofocus>
 					<label for="inputPrice" class="sr-only">가격</label>
 					<input type="number" name="price" id="inputPrice" class="form-control" placeholder="가격" required>
 					<label for="inputQuantity" class="sr-only">수량</label>
 					<input type="number" name="quantity" id="inputQuantity" class="form-control" placeholder="수량" required>
+					<label for="inputIntro" class="sr-only">한줄소개</label>
+					<input type="text" name="intro" id="inputIntro" class="form-control" placeholder="한줄소개" required>
+					<div id="sell-thumb" class="sell-add-title">
+					<h4>썸네일 이미지</h4>
+					</div>
+					<label for='inputThumbnail' class='sr-only'>썸네일 이미지</label>
+					<input type='file' class='form-control' name='thumbimage' accept='image/*'>
 					<div class="sell-add-title2">
 					<h4>옵션정보</h4>
 					</div>
@@ -22,27 +29,28 @@
 					<div class="sell-add-title2">
 					<h4>이미지</h4>
 					</div>
-					<div id="image">
-					</div>
+					<div id="image"></div>
+					<button id="addbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">상품 추가</button>
 				</form>
 		</div>
 		<script type="text/javascript">
-		var counter = 0;
-		var limit = 3;
+		var option = 0;
+		var image = 0;
+		var image_created = 0;
 		function addOption(){
 			var parent = document.createElement('div');
     		var title = document.createElement('div');
     		var input = document.createElement('div');
-    		parent.id = "option"+(counter + 1);
+    		parent.id = "option"+(option + 1);
 			parent.className = "sell-add-parent";
     		title.className = "sell-add-title3";
-          	title.innerHTML = "<h5>옵션 " + (counter + 1) + " | <a href='#' onclick='deleteOption("+parent.id+"); return false'>삭제</a> </h5>";
+          	title.innerHTML = "<h5>옵션 " + (option + 1) + " | <a href='#' onclick='deleteOption("+parent.id+"); return false'>삭제</a> </h5>";
           	input.innerHTML = "<label for='inputOptionName' class='sr-only'>옵션명</label><input type='name' name='oname' id='inputOptionName' class='form-control' placeholder='옵션명'><label for='inputOptionPrice' class='sr-only'>가격</label><input type='number' name='oprice' id='inputOptionPrice' class='form-control' placeholder='가격'><label for='inputOptionQuantity' class='sr-only'>수량</label><input type='number' name='oquantity' id='inputOptionQuantity' class='form-control' placeholder='수량'>";
 			parent.appendChild(title)
 			parent.appendChild(input);
 			document.getElementById('option').appendChild(parent);
 			updateOption();
-          	counter++;
+          	option++;
      	}
      	function deleteOption(gid){
      		document.getElementById('option').removeChild(gid);
@@ -56,6 +64,40 @@
     			child2[0].innerHTML = "<h5>옵션 " + (a + 1) + " | <a href='#' onclick='deleteOption("+child[i].id+"); return false'>삭제</a> </h5>";
     			a++;
 			}
+     	}
+     	function addImageFile(){
+     		if(image_created<5){
+     		var parent = document.createElement('div');
+     		var title = document.createElement('div');
+    		var input = document.createElement('div');
+    		parent.id = "image"+(image + 1);
+			parent.className = "sell-add-parent";
+    		title.className = "sell-add-title3";
+    		title.innerHTML = "<h5>이미지 " + (image + 1) + " | <a href='#' onclick='deleteImageFile("+parent.id+"); return false'>삭제</a> </h5>";
+          	input.innerHTML = "<label for='inputImageFile' class='sr-only'>이미지 파일</label><input type='file' class='form-control' name='fimage' id='inputImageFile' accept='image/*'>";
+			parent.appendChild(title)
+			parent.appendChild(input);
+			document.getElementById('image').appendChild(parent);
+			updateImageFile();
+          	image++;
+          	image_created++;
+          }else{
+          	alert("최대로 첨부할 수 있는 이미지 수를 초과하였습니다.");
+          }
+     	}
+     	function updateImageFile(){
+     		var a = 0;
+     		var child = document.getElementById('image').childNodes;
+     		for(i=0, j=child.length; i < j ; i++ ){
+    			var child2 = child[i].childNodes;
+    			child2[0].innerHTML = "<h5>이미지 " + (a + 1) + " | <a href='#' onclick='deleteImageFile("+child[i].id+"); return false'>삭제</a> </h5>";
+    			a++;
+			}
+     	}
+     	function deleteImageFile(gid){
+     		document.getElementById('image').removeChild(gid);
+     		updateImageFile();
+     		image_created--;
      	}
 		</script>
 	</div>
