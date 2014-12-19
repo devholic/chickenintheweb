@@ -15,7 +15,7 @@
 	<div id="cardgrid" class="row">
 		{% for chicken in chicken_list %}
 		<div class="cardwrap col-xs-12 col-sm-6 col-md-4">
-			<div class="thumbnail card" onclick="window.location = '/chicken/brand';">
+			<div class="thumbnail card" onclick="window.location = '/chicken/brand?cid={{ chicken.key.id }}';">
 				<img src="/blob/image?id={{ chicken.key }}" alt="...">
 				<div class="caption card-content">
 					<h3>{{ chicken.name }}</h3>

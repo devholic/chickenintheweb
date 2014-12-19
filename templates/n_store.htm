@@ -1,0 +1,55 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+<div id="default_conatiner" class="container">
+		<div class="page-header homepromotion">
+			{% if request == 'store' %}
+	  		<h2>{{ store.seller.name }} <small>{{ store.intro }}</small></h2>
+	  		{% else %}
+	  		{% if type == 'brand' %}
+	  		<h2>프랜차이즈치킨 <small>전국 어디서나 같은 맛!</small></h2>
+	  		{% else %}
+	  		<h2>동네치킨 <small>프랜차이즈 치킨과는 다른 독특한 맛!</small></h2>
+	  		{% endif %}
+	  		{% endif %}
+		</div>
+		<div id="cardgrid" class="row">
+		{% if request == 'store' %}
+		{% for chicken in chicken_list %}
+		<div class="cardwrap col-xs-12 col-sm-6 col-md-4">
+			<div class="thumbnail card" onclick="window.location = '/chicken/brand?cid={{ chicken.key.id }}';">
+				<img src="/blob/image?id={{ chicken.key }}" alt="...">
+				<div class="caption card-content">
+					<h3>{{ chicken.name }}</h3>
+					<h5>{{ chicken.seller.name }} | {{ chicken.pricestr }}</h3>
+					<h6>{{ chicken.intro }}</p>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+		{% else %}
+		{% for store in store_list %}
+		<div class="cardwrap col-xs-12 col-sm-6 col-md-4">
+			{% if type == 'brand' %}
+	  		<div class="thumbnail card" onclick="window.location = '/chicken/brand?id={{ store.key.id }}';">
+			{% else %}
+	  		<div class="thumbnail card" onclick="window.location = '/chicken/local?id={{ store.key.id }}';">
+			{% endif %}
+				<img src="/blob/image?id={{ store.key }}" alt="...">
+				<div class="caption card-content">
+					<h3>{{ store.seller.name }}</h3>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+		{% endif %}
+		<script type="text/javascript">		
+		var container = document.querySelector('#cardgrid');
+		var msnry;
+		// initialize Masonry after all images have loaded
+		imagesLoaded( container, function() {
+ 			msnry = new Masonry( container,{itemSelector: '.cardwrap'} );
+		});
+		</script>
+	</div>
+</div>
+{% endblock %}

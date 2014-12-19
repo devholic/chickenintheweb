@@ -239,6 +239,45 @@ body {
 	font-weight: 200;
 }
 
+.price{
+	padding-bottom: 10px;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 700;
+}
+
+.dropdown-menu{
+	width:100% ;
+}
+
+.quantity-control{
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-top:1px solid #eee;
+	vertical-align: middle;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
+.quantity-control .title{
+	display:inline-block;
+	width: 50%;
+}
+
+.quantity-control input{
+	text-align: center;
+	width:23px;
+}
+
+.quantity-delete {
+	float:right;
+}
+
+#finalprice{
+	font-size: 28px;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 700;
+}
+
 .sell-add-parent {
 	padding-bottom: 3px;
 }
@@ -398,6 +437,14 @@ body {
 	font-size: 16px;
 }
 
+.chkboxtxt {
+	color: #999999;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 400;
+	font-size: 16px;
+}
+
+
 .btn-default { 
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -424,6 +471,36 @@ body {
 	outline: none;
 	border-color: #D32F2F; 
 	background-color: #D32F2F; 
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+}
+
+.btn-cart { 
+	margin-top: 10px;
+	margin-bottom: 10px;
+	outline: none;
+	border-color: #FF5722; 
+	background-color: #FF5722;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+}
+
+.btn-cart:hover { 
+	margin-top: 10px;
+	margin-bottom: 10px;
+	outline: none;
+	border-color: #F4511E; 
+	background-color: #F4511E; 
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 300;
+}
+
+.btn-cart:focus, .btn-cart:active {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	outline: none;
+	border-color: #E64A19; 
+	background-color: #E64A19; 
 	font-family: "Nanum Barun Gothic", sans-serif;
 	font-weight: 300;
 }

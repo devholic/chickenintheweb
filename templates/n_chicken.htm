@@ -1,0 +1,118 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+<div class="container" id="default_conatiner" >
+		<div class="page-header homepromotion">
+			<h2>{{ chicken.name }} <small>{{ chicken.intro }}</small></h2>
+	  	</div>
+		<div class="row">
+		<div class="col-md-6">테스트1
+		</div>
+		<div class="col-md-6">
+			<div class="price"><h1>{{ chicken.pricestr }}</h1>
+			</div>
+				{% if option_list %}
+					<div class="dropdown" style="margin-bottom:20px;">
+  					<button class="btn btn-lg btn-primary btn-block btn-default" type="button" id="menu" data-toggle="dropdown" aria-expanded="true">
+   					옵션선택
+    				<span class="caret"></span>
+  					</button>
+  					<ul class="dropdown-menu" role="menu" aria-labelledby="menu">
+  					{% for option in option_list %}
+    				<li class="dropdownlistener" role="presentation"><a id="{{ option.key.id }}" role="menuitem" tabindex="-1" href="#">{{ option.name }} | {{ option.quantity }}개 남음 | {{ option.pricestr }}</a></li>
+    				{% endfor %}
+    				</ul>
+    				</div>
+    			{% endif %}
+    			<div id="list">
+    			<div class="quantity-control">
+    			<span>
+    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type="text" name="quantity" value="1" />
+    			</span>
+                </span>
+                </div>
+                </div>
+                <div class="quantity-control" style="vertical-align:baseline; padding-bottom:0px; text-align:right;">
+                <span id="">총 구매 금액 : </span><span id="finalprice"></span>
+                </div>
+                <div style="display:inline-block; margin-top: 10px; padding-top: 10px; border-top:1px solid #eee; width:100%; text-align:center;">
+                <button id="purchase" class="btn btn-lg btn-primary btn-default" style="width:49%;">바로구매</button>
+                <button id="addtocart" class="btn btn-lg btn-primary btn-cart" style="width:49%;">장바구니</button>
+                </div>
+                <script type="text/javascript">
+                var total_option = 0;
+                var baseprice = {{ chicken.price }};
+                var finalprice;
+                var option = new Array();
+                var option_name = new Array();
+                var option_price = new Array();
+                var option_quantity = new Array();
+                var u_option = new Array();
+                var u_value = new Array();
+                {% for q in option_list %}
+                option.push("{{ q.key.id }}");
+                option_name.push("{{ q.name }}");
+                option_price.push("{{ q.price }}");
+                option_quantity.push({{ q.quantity }});
+    			{% endfor %}
+
+    			function commify(n) { // http://mwultong.blogspot.com/2006/12/javascript-comma-number-thousands.html
+  					var reg = /(^[+-]?\d+)(\d{3})/;
+  					n += '';
+  					while (reg.test(n))
+    					n = n.replace(reg, '$1' + ',' + '$2');
+
+  					return n;
+				}
+
+    			function updateFinalPrice(){
+    				var pricetxt = document.getElementById('finalprice');
+    				pricetxt.innerHTML = "₩"+commify(baseprice);
+    			}
+
+    			function addOption(oid){
+    				var ti = u_value.indexOf("option"+oid);
+    				if(ti == -1){
+    					var op = document.createElement('div');
+    					var s1 = document.createElement('span');
+    					var s2 = document.createElement('span');
+    					var s3 = document.createElement('span');
+    					var s4 = document.createElement('span');
+    					var i = option.indexOf(oid);
+    					op.id = 'option'+(oid);
+    					u_value.push(op.id);
+    					u_option.push(oid);
+    					op.className = "quantity-control";
+    					s2.className = "title";
+    					s2.innerHTML = option_name[i];
+    					s3.className = "quantity-chk";
+    					s3.innerHTML = "수량 <input type='text' id='quantity' value='1'/>";
+    					s4.className = "quantity-delete";
+    					s4.innerHTML = "₩"+commify(option_price[i])+" | <a href='#' onclick='deleteOption("+op.id+"); return false'>삭제</a>";
+    					s1.appendChild(s2);
+    					s1.appendChild(s3);
+    					s1.appendChild(s4);
+    					op.appendChild(s1);
+                		document.getElementById('list').appendChild(op);
+                		updateFinalPrice();
+    				}
+    			}
+
+    			function deleteOption(oid){
+    				document.getElementById('list').removeChild(oid);
+    				var index = u_value.indexOf(oid);
+    				u_value = u_value.splice(index,1);
+    				u_option = u_option.splice(index,1);
+    			}
+
+    			$('.dropdown-menu li a').on('click', function (e) {
+  					e.preventDefault();
+  					var id = $(this).attr('id');
+  					addOption(id);
+				});
+    			
+    			updateFinalPrice();
+                </script>
+		</div>
+		</div>
+</div>
+{% endblock %}

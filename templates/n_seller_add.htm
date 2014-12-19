@@ -35,9 +35,11 @@
 		</div>
 		<script type="text/javascript">
 		var option = 0;
+		var option_created = 0;
 		var image = 0;
 		var image_created = 0;
 		function addOption(){
+			if(option_created<5){
 			var parent = document.createElement('div');
     		var title = document.createElement('div');
     		var input = document.createElement('div');
@@ -51,10 +53,15 @@
 			document.getElementById('option').appendChild(parent);
 			updateOption();
           	option++;
+          	option_created++;
+          	}else{
+          		alert("최대로 추가 가능한 옵션 수를 초과하였습니다.");
+          	}
      	}
      	function deleteOption(gid){
      		document.getElementById('option').removeChild(gid);
      		updateOption();
+     		option_created--;
      	}
      	function updateOption(){
      		var a = 0;
