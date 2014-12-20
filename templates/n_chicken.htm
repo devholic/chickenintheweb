@@ -5,29 +5,48 @@
 			<h2>{{ chicken.name }} <small>{{ chicken.intro }}</small></h2>
 	  	</div>
 		<div class="row">
-		<div class="col-md-6">테스트1
+		<div class="col-md-6" style="text-align:center; margin-bottom:40px;">
+		<div style="margin-bottom:20px;">
+		<img src="/blob/image?id={{ chicken.key }}" alt="..." style="width:90%;">
 		</div>
-		<div class="col-md-6">
+		{% for image in image_list %}
+		<div>
+		<img src="/blob/image?oid={{ image.key }}" alt="..." style="width:90%;">
+		</div>
+    	{% endfor %}
+		</div>
+		<div class="col-md-6" style="margin-bottom:40px;">
 			<div class="price"><h1>{{ chicken.pricestr }}</h1>
 			</div>
-				{% if option_list %}
-					<div class="dropdown" style="margin-bottom:20px;">
+				<div class="dropdown" style="margin-bottom:20px;">
   					<button class="btn btn-lg btn-primary btn-block btn-default" type="button" id="menu" data-toggle="dropdown" aria-expanded="true">
    					옵션선택
     				<span class="caret"></span>
   					</button>
   					<ul class="dropdown-menu" role="menu" aria-labelledby="menu">
+  					{% if option.quantity == 0 %}
+  					<li  id="{{ chicken.key.id }}" class="dropdownlistener disabled nosell" role="presentation"><a role="menuitem" tabindex="-1">{{ chicken.name }} | 매진 | {{ chicken.pricestr }}</a></li>
+  					{% else %}
+    				<li id="{{ chicken.key.id }}" class="dropdownlistener nosell" role="presentation"><a role="menuitem" tabindex="-1" href="#" disabled>{{ chicken.name }} | {{ chicken.quantity }}개 남음 | {{ chicken.pricestr }}</a></li>
+    				{% endif %}
   					{% for option in option_list %}
-    				<li class="dropdownlistener" role="presentation"><a id="{{ option.key.id }}" role="menuitem" tabindex="-1" href="#">{{ option.name }} | {{ option.quantity }}개 남음 | {{ option.pricestr }}</a></li>
+  					{% if option.quantity == 0 %}
+  					<li id="{{ option.key.id }}" class="dropdownlistener disabled nosell" role="presentation" disabled><a role="menuitem" tabindex="-1">{{ option.name }} | 매진 | {{ option.pricestr }}</a></li>
+  					{% else %}
+    				<li id="{{ option.key.id }}" class="dropdownlistener" role="presentation"><a role="menuitem" tabindex="-1" href="#">{{ option.name }} | {{ option.quantity }}개 남음 | {{ option.pricestr }}</a></li>
+    				{% endif %}
     				{% endfor %}
     				</ul>
-    				</div>
-    			{% endif %}
+    			</div>
     			<div id="list">
     			<div class="quantity-control">
     			<span>
-    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type="text" name="quantity" value="1" />
-    			</span>
+    			{% if chicken.quantity == 0 %}
+    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type='text' pattern='\d*' id="chicken_quantity" value="0" maxlength="3" onchange="updateFinalPrice()" onkeypress="return event.charCode >= 48 && event.charCode <= 57"/></span>
+    			{% else %}
+    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type='text' pattern='\d*' id="chicken_quantity" value="1" maxlength="3" onchange="updateFinalPrice()" onkeypress="return event.charCode >= 48 && event.charCode <= 57"/></span>
+    			{% endif %}
+    			<span class="quantity-delete">{{ chicken.pricestr }}</span>
                 </span>
                 </div>
                 </div>
@@ -35,13 +54,19 @@
                 <span id="">총 구매 금액 : </span><span id="finalprice"></span>
                 </div>
                 <div style="display:inline-block; margin-top: 10px; padding-top: 10px; border-top:1px solid #eee; width:100%; text-align:center;">
-                <button id="purchase" class="btn btn-lg btn-primary btn-default" style="width:49%;">바로구매</button>
-                <button id="addtocart" class="btn btn-lg btn-primary btn-cart" style="width:49%;">장바구니</button>
+                {% if chicken.quantity == 0 %}
+                <button id="purchase" class="btn btn-lg btn-primary btn-default" style="width:49%;" disabled>품절</button>
+                {% else %}
+                <button id="purchase" class="btn btn-lg btn-primary btn-default" style="width:49%;" onclick="req('/purchase')">바로구매</button>
+                <button id="addtocart" class="btn btn-lg btn-primary btn-cart" style="width:49%;" onclick="req('/order/bucket')">장바구니</button>
+                {% endif %}
                 </div>
                 <script type="text/javascript">
                 var total_option = 0;
                 var baseprice = {{ chicken.price }};
+                var limit = {{ chicken.quantity }}
                 var finalprice;
+                var chickenid = {{ chicken.key.id }}
                 var option = new Array();
                 var option_name = new Array();
                 var option_price = new Array();
@@ -66,7 +91,50 @@
 
     			function updateFinalPrice(){
     				var pricetxt = document.getElementById('finalprice');
-    				pricetxt.innerHTML = "₩"+commify(baseprice);
+    				var cq = document.getElementById('chicken_quantity').value;
+    				if (isNaN(cq)) 
+  					{	
+    					alert("숫자만 입력 가능합니다.");
+    					document.getElementById('chicken_quantity').value = 1;
+    					return false;
+  					}
+  					cq = parseInt(cq);
+  					if (cq<0){
+  						alert("수량이 마이너스가 될 수 없습니다.");
+    					document.getElementById('chicken_quantity').value = 1;
+    					return false;
+  					}
+  					if (cq>limit){
+  						alert("입력한 수량이 재고 수량보다 많습니다.");
+    					document.getElementById('chicken_quantity').value = 1;
+    					return false;
+  					}
+    				var price = baseprice * cq;
+    				for(var x=0;x<u_option.length;x++){
+    					var k = u_option[x];
+    					var oi = option.indexOf(k);
+    					var ui = document.getElementById("quantity_"+k).value;
+    					if (isNaN(ui)) 
+  						{	
+    						alert("숫자만 입력 가능합니다.");
+    						document.getElementById('chicken_quantity').value = 1;
+    						return false;
+  						}
+  						ui = parseInt(ui);
+  						if (ui<0){
+  							alert("수량이 마이너스가 될 수 없습니다.");
+    						document.getElementById('chicken_quantity').value = 1;
+    						return false;
+  						}
+  						if (ui>option_quantity[oi]){
+  							alert("입력한 수량이 재고 수량보다 많습니다.");
+    						document.getElementById('chicken_quantity').value = 1;
+    						return false;
+  						}
+    					price = price + (option_price[oi] * ui);
+    				}
+    				pricetxt.innerHTML = "₩"+commify(price);
+    				return price;
     			}
 
     			function addOption(oid){
@@ -85,7 +153,7 @@
     					s2.className = "title";
     					s2.innerHTML = option_name[i];
     					s3.className = "quantity-chk";
-    					s3.innerHTML = "수량 <input type='text' id='quantity' value='1'/>";
+    					s3.innerHTML = "수량 <input type='text' pattern='\d*' id='quantity_"+oid+"' value='1' maxlength='3' onchange='updateFinalPrice()' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/>";
     					s4.className = "quantity-delete";
     					s4.innerHTML = "₩"+commify(option_price[i])+" | <a href='#' onclick='deleteOption("+op.id+"); return false'>삭제</a>";
     					s1.appendChild(s2);
@@ -100,14 +168,58 @@
     			function deleteOption(oid){
     				document.getElementById('list').removeChild(oid);
     				var index = u_value.indexOf(oid);
+    				var ul = u_value.length
     				u_value = u_value.splice(index,1);
     				u_option = u_option.splice(index,1);
+    				if(u_value.length==ul){
+    					u_value = new Array();
+    					u_option = new Array();
+    				}
+    				updateFinalPrice();
     			}
 
-    			$('.dropdown-menu li a').on('click', function (e) {
+    			function req(url){
+    				var price = updateFinalPrice();
+    				if(price>0){
+    				var form = document.createElement("form");
+    				form.setAttribute("method", "post");
+    				form.setAttribute("action", url);
+    				var item = document.createElement("input");
+    				item.setAttribute("type", "hidden")
+    				item.setAttribute("name", "chicken")
+    				item.setAttribute("value", chickenid);
+    				form.appendChild(item);
+    				item = document.createElement("input");
+    				item.setAttribute("type", "hidden")
+    				item.setAttribute("name", "chicken_quantity")
+    				item.setAttribute("value", document.getElementById('chicken_quantity').value);
+    				form.appendChild(item);
+    				for(var x=0;x<u_option.length;x++){
+    					var k = u_option[x];
+    					var ui = document.getElementById("quantity_"+k).value;
+    					item = document.createElement("input");
+    					item.setAttribute("type", "hidden")
+    					item.setAttribute("name", "item")
+    					item.setAttribute("value", k);
+    					form.appendChild(item);
+    					item = document.createElement("input");
+    					item.setAttribute("type", "hidden")
+    					item.setAttribute("name", "quantity")
+    					item.setAttribute("value", ui);
+    					form.appendChild(item);
+    				}
+    				form.submit();
+    				}else{
+    					alert("상품을 선택해주세요.")
+    				}
+    			}
+
+    			$('.dropdown-menu li').on('click', function (e) {
   					e.preventDefault();
+  					if($(this).hasClass("nosell")){}else{
   					var id = $(this).attr('id');
   					addOption(id);
+  					}
 				});
     			
     			updateFinalPrice();

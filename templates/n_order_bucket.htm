@@ -1,8 +1,39 @@
 {% extends "template_base.htm" %}
 {% block bodyfill %}
 <div class="container">
-		<div class="page-header homepromotion">
-	  		<h2>장바구니</h2>
-		</div>
+	<div class="page-header homepromotion">
+		<h2>장바구니</h2>
 	</div>
+	<div class="purchase-section">
+	<h4>현재 담겨있는 항목</h4>
+	</div>
+	{% for bucket in bucketlist %}
+	{% if bucket.created_at %}
+	<div class="purchase">
+		<span>
+		<span class="title">{{ bucket.name }} | <a href='/order/bucket?remove={{ bucket.index }}'>삭제</a></span><span class="quantity-chk">수량 : <input type='text' pattern='\d*' id='quantity_{{ bucket.index }}' value='{{ bucket.uquantity }}' maxlength='3' onchange='updateBucket({{ bucket.index }})' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/></span>
+			<span class="quantity-delete">{{ bucket.pricestr }}</span>
+		</span>
+	</div>
+	{% else %}
+	<div class="purchase-option">
+		<span>
+			<span class="title">[옵션] | {{ bucket.name }} | <a href='/order/bucket?remove={{ bucket.index }}'>삭제</a></span><span class="quantity-chk">수량 : <input type='text' pattern='\d*' id='quantity_{{ bucket.index }}' value='{{ bucket.uquantity }}' maxlength='3' onchange='updateBucket({{ bucket.index }})' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/></span>
+			<span class="quantity-delete">{{ bucket.pricestr }}</span>
+		</span>
+	</div>
+	{% endif %}
+	{% endfor %}
+	<div class="purchase" style="vertical-align:baseline; padding-bottom:0px; text-align:right;">
+        	<span>결제할 금액 : </span><span id="finalprice">{{ bucketprice }}</span>
+    </div>
+    <button id="purchase" class="btn btn-lg btn-primary btn-default" style="width:49%;" onclick="location.href='/purchase'">바로결제</button>
+    <button id="addtocart" class="btn btn-lg btn-primary btn-cart" style="width:49%;" onclick="location.href='/'">쇼핑 계속하기</button>
+    <script type="text/javascript">
+    	function updateBucket(idx){
+    		var c = document.getElementById('quantity_'+idx).value;
+    		location.href='/order/bucket?change='+idx+'&value='+c;
+    	}
+    </script>
+</div>
 {% endblock %}

@@ -1,0 +1,54 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+<div id="default_container" class="container">
+		<div class="page-header homepromotion">
+	  		<h2>결제하기</h2>
+		</div>
+		{% if request == 'direct' %}
+		<div class="purchase-section">
+		<h4>결제정보</h4>
+		</div>
+		<div class="purchase">
+		<span>
+    	<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 : {{ chicken.uquantity }}</span>
+    	<span class="quantity-delete">{{ chicken.pricestr }}</span>
+        </span>
+        </div>
+        {% for option in optionlist %}
+        <div class="purchase-option">
+		<span>
+    	<span class="title">[옵션] | {{ option.name }}</span><span class="quantity-chk">수량 : {{ option.uquantity }}</span>
+    	<span class="quantity-delete">{{ option.pricestr }}</span>
+        </span>
+        </div>
+        {% endfor %}
+        <div class="purchase" style="vertical-align:baseline; padding-bottom:0px; text-align:right;">
+        	<span>결제할 금액 : </span><span id="finalprice">{{ finalprice }}</span>
+        </div>
+        <div class="purchase-section">
+		<h4>구매자 정보</h4>
+		</div>
+		<div class="purchase">
+    	<span class="title">이름 | <strong>{{ user.name }}</strong></span>
+    	</div>
+    	<div class="purchase-option">
+    	<span class="title">연락처 | <strong>{{ user.number }}</strong></span>
+    	</div>
+    	<div class="purchase-option">
+    	<span class="title">이메일 | <strong>{{ user.email }}</strong></span>
+    	</div>
+    	<div class="purchase-option">
+    	<span class="inputtitle">주소 | </span>
+    	<input type="text" name="name" id="inputAddress" value="{{ user.address }}" style="width:79%; vertical-align: middle;"></input>
+    	</span>
+    	</div>
+    	<div class="purchase purchase-section">
+		<h4>결제 정보</h4>
+		</div>
+		<div class="purchase-option purchase-wallet">
+			<h4><center>치킨인더웹 월렛에서 자동으로 결제됩니다</center></h4>
+			<h2><center>월렛 잔고 : {{ wallet.moneystr }} -> <strong>{{ wallet.afterpay }}</strong></center></h2>
+		</div>
+		{% endif %}
+</div>
+{% endblock %}
