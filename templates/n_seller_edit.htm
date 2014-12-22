@@ -1,0 +1,50 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+<div class="container" id="default_container">
+		<div class="page-header homepromotion">
+	  		<h2>상품 정보 </h2>
+		</div>
+		<div class="col-md-6" style="margin-bottom:40px">
+		<div class="purchase-section">
+		<h4>기본정보</h4>
+		</div>
+		<div class="purchase">
+		<h5>상품명 | {{ chicken.name }}</h5>
+		<h5>가격 | {{ chicken.pricestr }}</h5>
+		<h5>남은 수량 | {{ chicken.quantity }}</h5>
+		</div>
+		{% if optionlist %}
+		<div class="purchase-section">
+		<h4>옵션정보</h4>
+		</div>
+		{% for option in optionlist %}
+		<div class="purchase">
+		<h5>옵션명 | {{ option.name }}</h5>
+		<h5>가격 | {{ option.pricestr }}</h5>
+		<h5>남은 수량 | {{ option.quantity }}</h5>
+		</div>
+		{% endfor %}
+		{% endif %}
+		</div>
+		<div class="col-md-6">
+		{% if chicken.thumb %}
+		<div class="purchase-section">
+		<h4>썸네일 이미지</h4>
+		</div>
+		<div class="purchase">
+		<img src="/blob/image?id={{ chicken.key }}" alt="..." style="width:100%;">
+		</div>
+		{% endif %}
+		{% if imagelist %}
+		<div class="purchase-section">
+		<h4>이미지</h4>
+		</div>
+		<div class="purchase">
+		{% for image in imagelist %}
+		<img src="/blob/image?oid={{ image.key }}" alt="..." style="width:100%; margin-bottom:10px;">
+		{% endfor %}
+		</div>
+		{% endif %}
+		</div>
+	</div>
+{% endblock %}

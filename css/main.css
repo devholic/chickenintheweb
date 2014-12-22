@@ -387,6 +387,12 @@ body {
 	font-weight: 300;
 }
 
+.mypage-section {
+	color: #737373;
+	font-family: "Nanum Barun Gothic", sans-serif;
+	font-weight: 200;
+}
+
 #about_title {
 	color: #555555;
 	font-family: 'Nanum Barun Gothic', serif;

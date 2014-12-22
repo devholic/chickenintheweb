@@ -1,0 +1,76 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+<div id="default_container" class="container">
+	<div class="page-header homepromotion">
+		<h2>주문 상세 보기</h2>
+	</div>
+	<div class="purchase-section">
+	<h4>주문 정보</h4>
+	</div>
+	{% for bucket in bucketlist %}
+	{% if bucket.created_at %}
+	<div class="purchase">
+		<span>
+		<span class="title">{{ bucket.name }} | <strong>{{ bucket.orderstatus }}</strong></span><span class="quantity-chk">수량 : {{ bucket.uquantity }}</span>
+			<span class="quantity-delete">{{ bucket.pricestr }}</span>
+		</span>
+	</div>
+	{% else %}
+	<div class="purchase-option">
+		<span>
+			<span class="title">[옵션] | {{ bucket.name }}</span><span class="quantity-chk">수량  : {{ bucket.uquantity }}</span>
+			<span class="quantity-delete">{{ bucket.pricestr }}</span>
+		</span>
+	</div>
+	{% endif %}
+	{% endfor %}
+	<div class="purchase" style="vertical-align:baseline; padding-bottom:0px; text-align:right;">
+        	<span>결제된 금액 : </span><span id="finalprice">{{ bucketprice }}</span>
+    </div>
+    <div class="purchase-section">
+	<h4>배달 정보</h4>
+	</div>
+	<div class="purchase">
+		<span class="title">이름 | <strong>{{ user.name }}</strong></span>
+	</div>
+	<div class="purchase-option">
+		<span class="title">연락처 | <strong>{{ user.number }}</strong></span>
+	</div>
+	<div class="purchase-option">
+		<span class="title">이메일 | <strong>{{ user.email }}</strong></span>
+	</div>
+	<div class="purchase-option">
+		<span class="inputtitle">주소 | <strong>{{ user.address }}</strong></span>
+	</div>
+	{% if status == 0 %}
+    <button id="s1" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=1'">접수</button>
+    <button id="s2" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=2'">요리중</button>
+    <button id="s3" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=3'">배달중</button>
+    <button id="s4" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=4'">배달완료</button>
+    {% endif %}
+	{% if status == 1 %}
+    <button id="s1" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>접수</button>
+    <button id="s2" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=2'">요리중</button>
+    <button id="s3" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=3'">배달중</button>
+    <button id="s4" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=4'">배달완료</button>
+    {% endif %}
+    {% if status == 2 %}
+    <button id="s1" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>접수</button>
+    <button id="s2" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>요리중</button>
+    <button id="s3" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=3'">배달중</button>
+    <button id="s4" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=4'">배달완료</button>
+    {% endif %}
+    {% if status == 3 %}
+    <button id="s1" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>접수</button>
+    <button id="s2" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>요리중</button>
+    <button id="s3" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>배달중</button>
+    <button id="s4" class="btn btn-lg btn-primary btn-cart" style="width:24%;" onclick="location.href='/seller/order?id={{ oid }}&status=4'">배달완료</button>
+    {% endif %}
+    {% if status == 4 %}
+    <button id="s1" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>접수</button>
+    <button id="s2" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>요리중</button>
+    <button id="s3" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>배달중</button>
+    <button id="s4" class="btn btn-lg btn-primary btn-default" style="width:24%;" disabled>배달완료</button>
+    {% endif %}
+</div>
+{% endblock %}

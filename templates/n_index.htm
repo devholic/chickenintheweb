@@ -2,7 +2,7 @@
 {% block bodyfill %}
 {% if email %}
 {% if seller %}
-<div class="container">
+<div id="default_container" class="container">
 	<div class="page-header homepromotion">
 		<h2>치킨인더웹 <small>판매자 홈 </small></h2>
 	</div>
@@ -10,7 +10,7 @@
 {% else %}
 <div id="default_container" class="container">
 	<div class="page-header homepromotion">
-		<h2>치킨인더웹 <small>오늘의 치킨</small></h2>
+		<h2>치킨인더웹 <small>새로 등록된 치킨</small></h2>
 	</div>
 	<div id="cardgrid" class="row">
 		{% for chicken in chicken_list %}

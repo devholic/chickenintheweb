@@ -34,11 +34,17 @@ class Store(db.Model): # 스토어
 	isBrand = db.BooleanProperty() # 브랜드 치킨인지
 	created_at = db.DateTimeProperty(auto_now_add=True) # Entity 생성시간
 
-class Order(db.Model):
-	buyer = db.ReferenceProperty()
-	detail = db.IntegerProperty()
+class UserOrder(db.Model):
+	buyer = db.ReferenceProperty(User)
+	detail = db.StringProperty()
 	price = db.IntegerProperty()
 	created_at = db.DateTimeProperty(auto_now_add=True) # Entity 생성시간
+
+class SellerOrder(db.Model):
+	order = db.ReferenceProperty(UserOrder)
+	seller = db.ReferenceProperty(User)
+	status = db.IntegerProperty()
+	created_at = db.DateTimeProperty()
 
 class Chicken(db.Model): # 치킨
 	seller = db.ReferenceProperty() # 판매자 (Store)
@@ -86,6 +92,20 @@ def Render(handler, path = "n_index.htm", values ={}): # 템플릿 렌더링
 	handler.response.headers["Expires"] = "0"
 	handler.response.out.write(unicode(outstr))
 	return True
+
+def OrderStatusString(s):
+	if s == 0:
+		return '[접수 대기]'
+	elif s == 1:
+		return '[접수 완료]'
+	elif s == 2:
+		return '[요리중]'
+	elif s == 3:
+		return '[배달중]'
+	elif s == 4:
+		return '[배달 완료]'
+	else:
+		return '[오류]'
 
 def Salt(): # 비밀번호 암호화용 Salt 생성 메소드
 	alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -323,16 +343,121 @@ class UserpwHandler(BaseHandler):
 
 class MypageHandler(BaseHandler):
 	def get(self):
-		if self.session.get('email'):
-			Render(self, 'n_mypage.htm', {})
+		if self.session.get('email') and not self.session.get('seller'):
+			if self.request.get('orderid'):
+				o = UserOrder.get_by_id(int(self.request.get("orderid")))
+				sq = db.Query(SellerOrder)
+				sq.filter('order', o.key())
+				so = sq.fetch(limit=(sq.count()))
+				seller_email_list = []
+				seller_status_list = []
+				for sindex in range(len(so)):
+					seller_email_list.append(so[sindex].seller.email)
+					seller_status_list.append(int(so[sindex].status))
+				bucketlist = json.loads(o.detail)
+				renderlist = []
+				finalprice = 0
+				for bucket in bucketlist:
+					isSeller = 0
+					for index in range(len(bucket)):
+						if index == 0:
+							chicken = Chicken.get_by_id(int(bucket[index]['chicken']))
+							if chicken.seller.email in seller_email_list:
+								oidx = seller_email_list.index(chicken.seller.email)
+								logging.info(OrderStatusString(seller_status_list[oidx]))
+								chicken.orderstatus = OrderStatusString(seller_status_list[oidx])
+							chicken.uquantity = bucket[index]['chicken_quantity']
+							chicken.pricestr = '₩'+format(chicken.price,',d')
+							if not chicken.uquantity == 0:
+								finalprice += (chicken.price * int(chicken.uquantity))
+							renderlist.append(chicken)
+						else:
+							option = ChickenOption.get_by_id(int(bucket[index]['option']))
+							option.uquantity = bucket[index]['option_quantity']
+							option.pricestr = '₩'+format(option.price,',d')
+							if not option.uquantity == 0:
+								finalprice += (option.price * int(option.uquantity))	
+							renderlist.append(option)
+				finalpricestr = '₩'+format(finalprice,',d')
+				Render(self, 'n_mypage_order_detail.htm', {'bucketlist':renderlist,'bucketprice':finalpricestr, 'user':o.buyer})
+			else:
+				uq = db.Query(User)
+				uq.filter("email =", self.session.get('email'))
+				u = uq.get()
+				wq = db.Query(Wallet)
+				wq.filter("user =", u.key())
+				w = wq.get()
+				oq = db.Query(UserOrder)
+				oq.filter("buyer =", u.key())
+				oq.order("-created_at")
+				o = oq.fetch(limit=(oq.count()))
+				w.moneystr = '₩'+format(w.money,',d')
+				Render(self, 'n_mypage.htm', {'wallet':w,'orderlist':o})
 		else:
-			Render(self, 'n_index.htm', {})
+			if self.session.get('seller'):
+				uq = db.Query(User)
+				uq.filter("email =", self.session.get('email'))
+				u = uq.get()
+				wq = db.Query(Wallet)
+				wq.filter("user =", u.key())
+				w = wq.get()
+				w.moneystr = '₩'+format(w.money,',d')
+				sq = db.Query(Store)
+				sq.filter("seller =",u.key())
+				s = sq.get()
+				Render(self, 'n_mypage.htm', {'wallet':w, 'store':s})
+			else:
+				self.redirect('/')
+
+	def post(self):
+		if self.session.get('email') and not self.session.get('seller'):
+			if self.request.get('money'):
+				captcha = self.request.get('g-recaptcha-response')
+				url = "https://www.google.com/recaptcha/api/siteverify?secret=6Ldi6f4SAAAAAJ5WXvkKk1cSzc7L9C1CALkCnITs&response="+captcha
+				chk = urllib2.urlopen(url)
+				data = json.load(chk)
+				if data['success']:
+					uq = db.Query(User)
+					uq.filter("email =", self.session.get('email'))
+					u = uq.get()
+					wq = db.Query(Wallet)
+					wq.filter("user =", u.key())
+					w = wq.get()
+					w.money += int(self.request.get('money'))
+					w.put()
+					w.moneystr = '₩'+format(w.money,',d')
+					self.get()
+				else:
+					self.redirect('/error')
+			else:
+				self.get()
+		else:
+			if self.session.get('email') and self.session.get('seller'):
+				if self.request.get('update'):
+					uq = db.Query(User)
+					uq.filter("email =", self.session.get('email'))
+					u = uq.get()
+					sq = db.Query(Store)
+					sq.filter("seller =", u.key())
+					s = sq.get()
+					if self.request.get('intro'):
+						s.intro = self.request.get('intro')
+					if self.request.get('thumbimage'):
+						s.thumb = db.Blob(self.request.get('thumbimage'))
+					s.put()
+					self.get()
+				else:
+					self.get()
+			else:
+				self.get()
+
 
 class MainHandler(BaseHandler):
 	def get(self):
 		if self.session.get('email') and not self.session.get('seller'):
 			query = db.Query(Chicken)
-			result = query.fetch(limit=100)
+			query.order("-created_at")
+			result = query.fetch(limit=12)
 			for c in result:
 				# https://www.python.org/dev/peps/pep-0378/
 				c.pricestr = '₩'+format(c.price,',d')
@@ -349,7 +474,7 @@ class BrandHandler(BaseHandler):
 					q.pricestr = '₩'+format(q.price,',d')
 					oq = db.Query(ChickenOption)
 					oq.filter("chicken =", q.key())
-					o = oq.fetch(limit=30)
+					o = oq.fetch(limit=(oq.count()))
 					for op in o:
 						# https://www.python.org/dev/peps/pep-0378/
 						op.pricestr = '₩'+format(op.price,',d')
@@ -368,14 +493,14 @@ class BrandHandler(BaseHandler):
 				else:
 					query = db.Query(Store)
 					query.filter("isBrand =", True)
-					result = query.fetch(limit=100)
+					result = query.fetch(limit=(query.count()))
 					Render(self, 'n_store.htm', {'request':'storelist','store_list':result, 'type':'brand'})
 			elif self.request.get("id"):
 				q = Store.get_by_id(int(self.request.get("id")))
 				if q:
 					cquery = db.Query(Chicken)
 					cquery.filter("seller =", q.seller)
-					result = cquery.fetch(limit=100)
+					result = cquery.fetch(limit=(cquery.count()))
 					for c in result:
 						# https://www.python.org/dev/peps/pep-0378/
 						c.pricestr = '₩'+format(c.price,',d')
@@ -383,12 +508,12 @@ class BrandHandler(BaseHandler):
 				else:
 					query = db.Query(Store)
 					query.filter("isBrand =", True)
-					result = query.fetch(limit=100)
+					result = query.fetch(limit=(query.count()))
 					Render(self, 'n_store.htm', {'request':'storelist','store_list':result, 'type':'brand'})
 			else:
 				query = db.Query(Store)
 				query.filter("isBrand =", True)
-				result = query.fetch(limit=100)
+				result = query.fetch(limit=(query.count()))
 				Render(self, 'n_store.htm', {'request':'storelist','store_list':result, 'type':'brand'})
 		else:
 			Render(self, 'n_index.htm', {})
@@ -402,7 +527,7 @@ class LocalHandler(BaseHandler):
 					q.pricestr = '₩'+format(q.price,',d')
 					oq = db.Query(ChickenOption)
 					oq.filter("chicken =", q.key())
-					o = oq.fetch(limit=30)
+					o = oq.fetch(limit=(oq.count()))
 					for op in o:
 						# https://www.python.org/dev/peps/pep-0378/
 						op.pricestr = '₩'+format(op.price,',d')
@@ -421,14 +546,14 @@ class LocalHandler(BaseHandler):
 				else:
 					query = db.Query(Store)
 					query.filter("isBrand =", False)
-					result = query.fetch(limit=100)
+					result = query.fetch(limit=(query.count()))
 					Render(self, 'n_store.htm', {'request':'storelist','store_list':result, 'type':'local'})
 			elif self.request.get("id"):
 				q = Store.get_by_id(int(self.request.get("id")))
 				if q:
 					cquery = db.Query(Chicken)
 					cquery.filter("seller =", q.seller)
-					result = cquery.fetch(limit=100)
+					result = cquery.fetch(limit=(cquery.count()))
 					for c in result:
 						# https://www.python.org/dev/peps/pep-0378/
 						c.pricestr = '₩'+format(c.price,',d')
@@ -436,12 +561,12 @@ class LocalHandler(BaseHandler):
 				else:
 					query = db.Query(Store)
 					query.filter("isBrand =", False)
-					result = query.fetch(limit=100)
+					result = query.fetch(limit=(query.count()))
 					Render(self, 'n_store.htm', {'request':'storelist','store_list':result, 'type':'local'})
 			else:
 				query = db.Query(Store)
 				query.filter("isBrand =", False)
-				result = query.fetch(limit=100)
+				result = query.fetch(limit=(query.count()))
 				Render(self, 'n_store.htm', {'request':'storelist','store_list':result, 'type':'local'})
 		else:
 			Render(self, 'n_index.htm', {})
@@ -449,6 +574,11 @@ class LocalHandler(BaseHandler):
 class OrderBucketHandler(BaseHandler):
 	def get(self):
 		if self.session.get('email') and not self.session.get('seller'):
+			if self.request.get('clear'):
+				if self.session.get('bucket'):
+					self.session.pop('bucket')
+				self.redirect('/order/bucket')
+
 			if self.request.get('remove'):
 				target = int(self.request.get('remove'))
 				jstr = self.session.get('bucket')
@@ -523,6 +653,7 @@ class OrderBucketHandler(BaseHandler):
 				renderlist = []
 				finalprice = 0
 				item = 0
+				soldout = 0
 				for bucket in bucketlist:
 					for index in range(len(bucket)):
 						if index == 0:
@@ -531,7 +662,10 @@ class OrderBucketHandler(BaseHandler):
 							chicken.pricestr = '₩'+format(chicken.price,',d')
 							chicken.index = item
 							item+=1
-							finalprice += (chicken.price * int(chicken.uquantity))
+							if not chicken.quantity == 0:
+								finalprice += (chicken.price * int(chicken.uquantity))
+							else:
+								soldout = 1
 							renderlist.append(chicken)
 						else:
 							option = ChickenOption.get_by_id(int(bucket[index]['option']))
@@ -539,12 +673,19 @@ class OrderBucketHandler(BaseHandler):
 							option.pricestr = '₩'+format(option.price,',d')
 							option.index = item
 							item+=1
-							finalprice += (option.price * int(option.uquantity))
+							if not option.quantity == 0:
+								finalprice += (option.price * int(option.uquantity))
+							else:
+								soldout = 1
 							renderlist.append(option)
 				finalpricestr = '₩'+format(finalprice,',d')
-				Render(self, 'n_order_bucket.htm', {'bucketlist':renderlist,'bucketprice':finalpricestr})
+				if finalprice == 0:
+					Render(self, 'n_order_bucket.htm', {'bucketlist':renderlist,'bucketprice':finalpricestr,'empty':'true', 'soldout':soldout})
+				else:
+					Render(self, 'n_order_bucket.htm', {'bucketlist':renderlist,'bucketprice':finalpricestr, 'soldout':soldout})
 			else:
-				Render(self, 'n_order_bucket.htm', {})
+				finalpricestr = '₩'+format(0,',d')
+				Render(self, 'n_order_bucket.htm', {'bucketprice':finalpricestr,'empty':'true'})
 		else:
 			self.redirect('/')
 
@@ -567,7 +708,6 @@ class OrderBucketHandler(BaseHandler):
 				bucket.append(olist)
 				j = json.dumps(bucket)
 				self.session['bucket'] = j
-				logging.info(j)
 				self.get()
 			else:
 				olist = []
@@ -593,19 +733,190 @@ class PurchaseHandler(BaseHandler):
 	def get(self):
 		if self.session.get('email') and not self.session.get('seller'):
 			if self.session.get('bucket'):
-				Render(self, 'n_purchase.htm', {})
+				jstr = self.session.get('bucket')
+				bucketlist = json.loads(jstr)
+				renderlist = []
+				finalprice = 0
+				item = 0
+				for bucket in bucketlist:
+					for index in range(len(bucket)):
+						if index == 0:
+							chicken = Chicken.get_by_id(int(bucket[index]['chicken']))
+							chicken.uquantity = bucket[index]['chicken_quantity']
+							chicken.pricestr = '₩'+format(chicken.price,',d')
+							chicken.index = item
+							item+=1
+							if not chicken.quantity == 0:
+								finalprice += (chicken.price * int(chicken.uquantity))
+							renderlist.append(chicken)
+						else:
+							option = ChickenOption.get_by_id(int(bucket[index]['option']))
+							option.uquantity = bucket[index]['option_quantity']
+							option.pricestr = '₩'+format(option.price,',d')
+							option.index = item
+							item+=1
+							if not option.quantity == 0:
+								finalprice += (option.price * int(option.uquantity))
+							renderlist.append(option)
+				pricestr = '₩'+format(finalprice,',d')
+				uq = db.Query(User)
+				uq.filter("email =", self.session.get('email'))
+				u = uq.get()
+				wq = db.Query(Wallet)
+				wq.filter("user =", u.key())
+				w = wq.get()
+				w.afterpay = w.money - finalprice
+				w.afterpaystr = '₩'+format(w.afterpay,',d')
+				w.moneystr = '₩'+format(w.money,',d')
+				Render(self, 'n_purchase.htm', {'request':'bucket','bucketlist':renderlist, 'finalprice':pricestr, 'user':u, 'wallet':w})
 			else:
-				self.redirect('/')
+				self.redirect('/order/bucket')
 		else:
 			self.redirect('/')
 
 	def post(self):
 		if self.session.get('email') and not self.session.get('seller'):
-			if self.request.get('bucket'):
-				Render(self, 'n_purchase.htm', {})
-			elif self.request.get('checkout'):
-				# 결제
-				Render(self, 'n_purchase.htm', {})
+			if self.request.get('checkout'):
+				checkout_type = self.request.get('checkout')
+				# 유저 가져오기
+				uq = db.Query(User)
+				uq.filter("email =", self.session.get('email'))
+				u = uq.get()
+				wq = db.Query(Wallet)
+				wq.filter("user =", u.key())
+				w = wq.get() 
+				if checkout_type == 'direct':
+					logging.info('direct')
+					parentlist = []
+					childlist = []
+					optionlist_check = []
+					chicken = Chicken.get_by_id(int(self.request.get("chicken")))
+					cq = int(self.request.get("chicken_quantity"))
+					if cq>chicken.quantity:
+						self.redirect('/error')
+					else:
+						price = chicken.price * cq
+						co = {'chicken': int(self.request.get("chicken")),'chicken_quantity':cq}
+						childlist.append(co)
+						i = self.request.get_all('option')
+						q = self.request.get_all('option_quantity')
+						if i:
+							for index in range(len(i)): # 입력된 id int형으로 바꿔주기
+								i[index] = int(i[index])
+							optionlist = ChickenOption.get_by_id(i) # 해당되는 모든 옵션 리스트 가져오기
+							optionlist_check = optionlist
+							index = 0
+							for option in optionlist:
+								if int(q[index])>option.quantity:
+									logging.info('error_oquantity')
+									self.redirect('/error')
+								else:
+									option.uquantity = int(q[index])
+									index += 1
+									option.finalprice = option.uquantity * option.price
+									oo = {'option': int(i[index]),'option_quantity': int(q[index])}
+									childlist.append(oo)
+									price += option.finalprice
+						if w.money - price >= 0:
+							# 결제 처리
+							chicken.quantity = chicken.quantity - cq
+							chicken.put()
+							wsq = db.Query(Wallet)
+							wsq.filter("user =", chicken.seller)
+							sw = wsq.get()
+							sw.money = sw.money + price
+							sw.put()
+							if i:
+								index = 0
+								for option in optionlist:
+									option.quantity = option.quantity - int(q[index])
+									option.put()
+							parentlist.append(childlist)
+							j = json.dumps(parentlist)
+							order = UserOrder()
+							order.buyer = u.key()
+							order.detail = j
+							order.price = price
+							ok = order.put()
+							so = SellerOrder()
+							so.seller = chicken.seller
+							so.order = ok
+							so.status = 0
+							so.created_at = order.created_at
+							so.put()
+							w.money = w.money - price
+							w.put()
+							self.redirect('/mypage')
+						else:
+							self.redirect('/mypage')
+				else:
+					# 장바구니 결제
+					jstr = self.session.get('bucket')
+					bucketlist = json.loads(jstr)
+					renderlist = []
+					sellerlist = []
+					moneylist = []
+					seller_email = []
+					itemlist = []
+					finalprice = 0
+					for bucket in bucketlist:
+						for index in range(len(bucket)):
+							if index == 0:
+								chicken = Chicken.get_by_id(int(bucket[index]['chicken']))
+								itemlist.append(chicken)
+								chicken.uquantity = bucket[index]['chicken_quantity']
+								if not chicken.seller.email in seller_email:
+									sellerlist.append(chicken.seller)
+									seller_email.append(chicken.seller.email)
+									moneylist.append((chicken.price * int(chicken.uquantity)))
+								else:
+									idx = seller_email.index(chicken.seller.email)	
+									moneylist[idx] += (chicken.price * int(chicken.uquantity))
+								finalprice += (chicken.price * int(chicken.uquantity))
+							else:
+								option = ChickenOption.get_by_id(int(bucket[index]['option']))
+								itemlist.append(option)
+								option.uquantity = bucket[index]['option_quantity']
+								option.pricestr = '₩'+format(option.price,',d')
+								if option.chicken.seller.email in seller_email:
+									idx = seller_email.index(option.chicken.seller.email)	
+									moneylist[idx] += (option.price * int(option.uquantity))
+								finalprice += (option.price * int(option.uquantity))
+					if w.money - finalprice >= 0:
+						for bucket in bucketlist:
+							for index in range(len(bucket)):
+								if index == 0:
+									itemlist[index].quantity = itemlist[index].quantity - int(bucket[index]['chicken_quantity'])
+									itemlist[index].put()
+								else:
+									itemlist[index].quantity = itemlist[index].quantity - int(bucket[index]['option_quantity'])
+									itemlist[index].put()
+						order = UserOrder()
+						order.buyer = u.key()
+						order.detail = jstr
+						order.price = finalprice
+						ok = order.put()
+						for i in sellerlist:
+							so = SellerOrder()
+							so.seller = i
+							so.order = ok
+							so.status = 0
+							so.created_at = order.created_at
+							so.put()
+							if i.email in seller_email:
+								idx = seller_email.index(i.email)
+								swq = db.Query(Wallet)
+								swq.filter('user =', i)
+								sw = swq.get()
+								sw.money += moneylist[idx]
+								sw.put()
+						w.money = w.money - finalprice
+						w.put()
+						if self.session.get('bucket'):
+							self.session.pop('bucket')
+						self.redirect('/order/bucket')
+					else:
+						self.redirect('/error')
 			else:
 				i = self.request.get_all('item')
 				q = self.request.get_all('quantity')
@@ -615,9 +926,9 @@ class PurchaseHandler(BaseHandler):
 				chicken.pricestr = '₩'+format(chicken.finalprice,',d')
 				price = chicken.finalprice
 				if i:
-					for index in range(len(i)):
+					for index in range(len(i)): # 입력된 id int형으로 바꿔주기
 						i[index] = int(i[index])
-					optionlist = ChickenOption.get_by_id(i)
+					optionlist = ChickenOption.get_by_id(i) # 해당되는 모든 옵션 리스트 가져오기
 					index = 0
 					for option in optionlist:
 						option.uquantity = int(q[index])
@@ -629,33 +940,105 @@ class PurchaseHandler(BaseHandler):
 					uq = db.Query(User)
 					uq.filter("email =", self.session.get('email'))
 					u = uq.get()
-					fu = User()
-					fu.email = u.email
-					fu.number = u.number
-					fu.address = u.address
-					fu.name = u.name
 					wq = db.Query(Wallet)
 					wq.filter("user =", u.key())
 					w = wq.get()
-					w.afterpay = '₩'+format((w.money - price),',d')
-					w.money('₩'+format(w.money),',d')
-					Render(self, 'n_purchase.htm', {'request':'direct','chicken':chicken, 'optionlist':optionlist, 'finalprice':pricestr, 'user':fu, 'wallet':w})
+					w.afterpay = w.money - price
+					w.afterpaystr = '₩'+format((w.money - price),',d')
+					w.moneystr = '₩'+format(w.money,',d')
+					Render(self, 'n_purchase.htm', {'request':'direct','chicken':chicken, 'optionlist':optionlist, 'finalprice':pricestr, 'user':u, 'wallet':w})
 				else:
 					pricestr = '₩'+format(price,',d')
 					uq = db.Query(User)
 					uq.filter("email =", self.session.get('email'))
 					u = uq.get()
-					fu = User()
-					fu.email = u.email
-					fu.number = u.number
-					fu.address = u.address
-					fu.name = u.name
 					wq = db.Query(Wallet)
 					wq.filter("user =", u.key())
 					w = wq.get()
-					w.afterpay = '₩'+format((w.money - price),',d')
+					w.afterpay = w.money - price
+					w.afterpaystr = '₩'+format((w.money - price),',d')
 					w.moneystr = '₩'+format(w.money,',d')
-					Render(self, 'n_purchase.htm', {'request':'direct','chicken':chicken, 'finalprice':pricestr, 'user':fu, 'wallet':w})
+					Render(self, 'n_purchase.htm', {'request':'direct','chicken':chicken, 'finalprice':pricestr, 'user':u, 'wallet':w})
+		else:
+			self.redirect('/')
+
+class SellerOrderHandler(BaseHandler):
+	def get(self):
+		if self.session.get('email') and self.session.get('seller'):
+			if self.request.get('id'):
+				if self.request.get('status'):
+					so = SellerOrder.get_by_id(int(self.request.get("id")))
+					if so.seller.email == self.session.get('email'):
+						so.status = int(self.request.get("status"))
+						so.put()
+						self.redirect('/seller/order?id='+self.request.get('id'))
+					else:
+						self.redirect('/')
+				else:
+					so = SellerOrder.get_by_id(int(self.request.get("id")))
+					bucketlist = json.loads(so.order.detail)
+					renderlist = []
+					finalprice = 0
+					soldout = 0
+					for bucket in bucketlist:
+						isSeller = 0
+						for index in range(len(bucket)):
+							if index == 0:
+								chicken = Chicken.get_by_id(int(bucket[index]['chicken']))
+								chicken.uquantity = bucket[index]['chicken_quantity']
+								chicken.pricestr = '₩'+format(chicken.price,',d')
+								if chicken.seller.email == so.seller.email:
+									if not chicken.uquantity == 0:
+										finalprice += (chicken.price * int(chicken.uquantity))
+									isSeller = 1
+									renderlist.append(chicken)
+							else:
+								option = ChickenOption.get_by_id(int(bucket[index]['option']))
+								option.uquantity = bucket[index]['option_quantity']
+								option.pricestr = '₩'+format(option.price,',d')
+								if isSeller == 1:
+									if not option.uquantity == 0:
+										finalprice += (option.price * int(option.uquantity))
+									renderlist.append(option)
+					finalpricestr = '₩'+format(finalprice,',d')
+					Render(self, 'n_seller_order_detail.htm', {'status':so.status, 'oid':self.request.get("id"),'bucketlist':renderlist,'bucketprice':finalpricestr, 'user':so.order.buyer})
+			else:
+				query = db.Query(User)
+				query.filter("email =",self.session.get('email'))
+				u = query.get()
+				oq = db.Query(SellerOrder)
+				oq.filter("seller =",u.key())
+				oq.order("-created_at")
+				result = oq.fetch(limit=(oq.count()))
+				Render(self, 'n_seller_order.htm', {'orderlist':result})
+		else:
+			self.redirect('/')
+
+class SellerChickenHandler(BaseHandler):
+	def get(self):
+		if self.session.get('email') and self.session.get('seller'):
+			if self.request.get('cid'):
+				chicken = Chicken.get_by_id(int(self.request.get('cid')))
+				chicken.pricestr = '₩'+format(chicken.price,',d')
+				oq = db.Query(ChickenOption)
+				oq.filter('chicken =', chicken.key())
+				ol = oq.fetch(limit=(oq.count()))
+				for option in ol:
+					option.pricestr = '₩'+format(option.price,',d')
+				iq = db.Query(ChickenImage)
+				iq.filter('chicken =', chicken.key())
+				il = iq.fetch(limit=(iq.count()))
+				if il:
+					Render(self, 'n_seller_edit.htm', {'chicken':chicken, 'optionlist':ol, 'imagelist':il})
+				else:
+					Render(self, 'n_seller_edit.htm', {'chicken':chicken, 'optionlist':ol})
+			else:
+				query = db.Query(User)
+				query.filter("email =",self.session.get('email'))
+				u = query.get()
+				cq = db.Query(Chicken)
+				cq.filter('seller =',u.key())
+				Render(self, 'n_seller_product.htm', {'chicken_list':cq})
 		else:
 			self.redirect('/')
 
@@ -664,12 +1047,12 @@ class SellerNewChickenHandler(BaseHandler):
 		if self.session.get('email') and self.session.get('seller'):
 			Render(self, 'n_seller_add.htm', {})
 		else:
-			Render(self, 'n_index.htm', {})
+			self.redirect('/')
 
 	def post(self):
 		if self.session.get('email') and self.session.get('seller'):
 			query = db.Query(User)
-			q = query.filter("email ==",self.session.get('email'))
+			q = query.filter("email =",self.session.get('email'))
 			u = q.get()
 			c = Chicken()
 			c.seller = u
@@ -677,8 +1060,8 @@ class SellerNewChickenHandler(BaseHandler):
 			c.quantity = int(self.request.get("quantity"))
 			c.price = int(self.request.get("price"))
 			c.intro = self.request.get("intro")
+			ti = self.request.get("thumbimage")
 			if ti:
-				ti = self.request.get("thumbimage")
 				c.thumb = db.Blob(ti)
 			ck = c.put()
 			i = self.request.get_all("fimage")
@@ -702,6 +1085,10 @@ class SellerNewChickenHandler(BaseHandler):
 					o.price = int(op[oc])
 					o.put()
 			self.redirect('/seller/chicken')
+
+class ErrorHandler(BaseHandler):
+	def get(self):
+		Render(self, 'error.htm', {})
 
 class TermsHandler(BaseHandler):
 	def get(self):
@@ -744,9 +1131,10 @@ config['webapp2_extras.sessions'] = {
 app = webapp2.WSGIApplication([('/login', LoginHandler), ('/register', RegisterHandler), 
 	('/register/seller', SellerRegisterHandler), ('/logout', LogoutHandler), ('/findpw', UserpwHandler), 
 	('/chicken/brand', BrandHandler), ('/chicken/local', LocalHandler), ('/order/bucket', OrderBucketHandler), 
-	('/purchase', PurchaseHandler),('/mypage', MypageHandler), ('/seller/add', SellerNewChickenHandler), 
-	('/terms', TermsHandler), ('/security', SecurityHandler), ('/blob/image', ImageHandler), 
-	('/.*', MainHandler)], debug=True, config=config)
+	('/purchase', PurchaseHandler),('/mypage', MypageHandler), ('/seller/order', SellerOrderHandler), 
+	('/seller/chicken', SellerChickenHandler), ('/seller/add', SellerNewChickenHandler), 
+	('/terms', TermsHandler), ('/security', SecurityHandler), ('/blob/image', ImageHandler),
+	('/error', ErrorHandler), ('/.*', MainHandler)], debug=True, config=config)
 
 def main():
 	app.run()

@@ -9,3 +9,15 @@ indexes:
 # manually, move them above the marker line.  The index.yaml file is
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
+
+- kind: SellerOrder
+  properties:
+  - name: seller
+  - name: created_at
+    direction: desc
+
+- kind: UserOrder
+  properties:
+  - name: buyer
+  - name: created_at
+    direction: desc

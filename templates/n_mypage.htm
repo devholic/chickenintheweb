@@ -1,8 +1,62 @@
 {% extends "template_base.htm" %}
 {% block bodyfill %}
-<div class="container">
+<div id="default_container" class="container">
 		<div class="page-header homepromotion">
 	  		<h2>마이페이지</h2>
 		</div>
-	</div>
+		{% if seller %}
+		<div class="col-md-6" style="margin-bottom:40px">
+		<div class="purchase-section">
+		<h4>월렛</h4>
+		</div>
+		<div class="purchase">
+		<h2>월렛 잔고 : {{ wallet.moneystr }}</h2>
+		</div>
+		</div>
+		<div class="col-md-6">
+		<div class="purchase-section">
+		<h4>매장 정보 업데이트</h4>
+		</div>
+		<div class="purchase">
+		<form class="sellinput" enctype="multipart/form-data" role="form" method="post" action="/mypage" style="width:100%;">
+		<h5 class="mypage-section">매장 소개</h5>
+		<input type="hidden" name="update" value="data">
+		<label for="inputIntro" class="sr-only">매장 소개</label>
+		<input type="text" name="intro" id="inputIntro" class="form-control" placeholder="{{ store.intro }}" style="width:100%; text-align:left;" required autofocus>
+		<h5 class="mypage-section">매장 썸네일 이미지</h5>
+		<label for='inputThumbnail' class='sr-only'>매장 썸네일 이미지</label>
+		<input type='file' class='form-control' name='thumbimage' accept='image/*' style="width:100%;">
+		<button id="addbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">매장 정보 업데이트</button>
+		</form>
+		</div>
+		</div>
+		{% else %}
+		<div class="col-md-6" style="margin-bottom:40px">
+		<div class="purchase-section">
+		<h4>월렛</h4>
+		</div>
+		<div class="purchase">
+		<h2>월렛 잔고 : {{ wallet.moneystr }}</h2>
+		<form class="walletinput" role="form" method="post" action="/mypage">
+			<label for="inputMoney" class="sr-only">충전할 금액
+			</label>
+			<input type="text" name="money" id="inputWallet" class="form-control" placeholder="충전할 금액" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13" style="width:100%;" required>
+			<div class="g-recaptcha" id="captcha" align="left" data-sitekey="6Ldi6f4SAAAAAGTajyIbi7SyJanSlNAPhmDLhfjd"></div>
+			<button id="registerbtn" class="btn btn-lg btn-primary btn-block btn-default" type="submit">잔고 충전</button>
+		</form>
+		</div>
+		</div>
+		<div class="col-md-6">
+		<div class="purchase-section">
+		<h4>최근 주문 내역</h4>
+		</div>
+		{% for order in orderlist %}
+		<div class="purchase">
+			<span class="title"><a href="/mypage?orderid={{ order.key.id }}">{{ order.key.id }}</a></span>
+			<div>{{ order.created_at }}</div>
+		</div>
+		{% endfor %}
+		</div>
+		{% endif %}
+</div>
 {% endblock %}

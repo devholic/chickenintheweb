@@ -1,0 +1,33 @@
+{% extends "template_base.htm" %}
+{% block bodyfill %}
+<div class="container" id="default_container">
+		<div class="page-header homepromotion">
+	  		<h2>주문관리</h2>
+		</div>
+		<div class="purchase-section">
+		<h4>최근 주문 내역</h4>
+		</div>
+		{% for order in orderlist %}
+		<div class="purchase">
+		<span>
+			<span class="title"><a href="/seller/order?id={{ order.key.id }}">{{ order.key.id }}</a></span><span class="quantity-chk">{{ order.created_at }}</span>
+			{% if order.status == 0 %}
+			<span class="quantity-delete">접수 대기</span>
+			{% endif %}
+			{% if order.status == 1 %}
+			<span class="quantity-delete">접수 완료</span>
+			{% endif %}
+			{% if order.status == 2 %}
+			<span class="quantity-delete">요리중</span>
+			{% endif %}
+			{% if order.status == 3 %}
+			<span class="quantity-delete">배달중</span>
+			{% endif %}
+			{% if order.status == 4 %}
+			<span class="quantity-delete">배달 완료</span>
+			{% endif %}
+		</span>
+		</div>
+		{% endfor %}
+</div>
+{% endblock %}

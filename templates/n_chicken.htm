@@ -11,7 +11,7 @@
 		</div>
 		{% for image in image_list %}
 		<div>
-		<img src="/blob/image?oid={{ image.key }}" alt="..." style="width:90%;">
+		<img src="/blob/image?oid={{ image.key }}" alt="..." style="width:90%; margin-bottom:10px;">
 		</div>
     	{% endfor %}
 		</div>
@@ -25,9 +25,9 @@
   					</button>
   					<ul class="dropdown-menu" role="menu" aria-labelledby="menu">
   					{% if option.quantity == 0 %}
-  					<li  id="{{ chicken.key.id }}" class="dropdownlistener disabled nosell" role="presentation"><a role="menuitem" tabindex="-1">{{ chicken.name }} | 매진 | {{ chicken.pricestr }}</a></li>
+  					<li id="{{ chicken.key.id }}" class="dropdownlistener disabled nosell" role="presentation"><a role="menuitem" tabindex="-1">{{ chicken.name }} | 매진 | {{ chicken.pricestr }}</a></li>
   					{% else %}
-    				<li id="{{ chicken.key.id }}" class="dropdownlistener nosell" role="presentation"><a role="menuitem" tabindex="-1" href="#" disabled>{{ chicken.name }} | {{ chicken.quantity }}개 남음 | {{ chicken.pricestr }}</a></li>
+    				<li id="{{ chicken.key.id }}" class="dropdownlistener nosell" role="presentation"><a role="menuitem" tabindex="-1" href="#">{{ chicken.name }} | {{ chicken.quantity }}개 남음 | {{ chicken.pricestr }}</a></li>
     				{% endif %}
   					{% for option in option_list %}
   					{% if option.quantity == 0 %}
@@ -42,23 +42,23 @@
     			<div class="quantity-control">
     			<span>
     			{% if chicken.quantity == 0 %}
-    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type='text' pattern='\d*' id="chicken_quantity" value="0" maxlength="3" onchange="updateFinalPrice()" onkeypress="return event.charCode >= 48 && event.charCode <= 57"/></span>
+    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type='text' pattern='\d*' id="chicken_quantity" value="0" maxlength="3" onchange="updateFinalPrice()" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13"/></span>
     			{% else %}
-    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type='text' pattern='\d*' id="chicken_quantity" value="1" maxlength="3" onchange="updateFinalPrice()" onkeypress="return event.charCode >= 48 && event.charCode <= 57"/></span>
+    			<span class="title">{{ chicken.name }}</span><span class="quantity-chk">수량 <input type='text' pattern='\d*' id="chicken_quantity" value="1" maxlength="3" onchange="updateFinalPrice()" onkeypress="return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13"/></span>
     			{% endif %}
     			<span class="quantity-delete">{{ chicken.pricestr }}</span>
                 </span>
                 </div>
                 </div>
                 <div class="quantity-control" style="vertical-align:baseline; padding-bottom:0px; text-align:right;">
-                <span id="">총 구매 금액 : </span><span id="finalprice"></span>
+                <span>총 구매 금액 : </span><span id="finalprice"></span>
                 </div>
                 <div style="display:inline-block; margin-top: 10px; padding-top: 10px; border-top:1px solid #eee; width:100%; text-align:center;">
                 {% if chicken.quantity == 0 %}
                 <button id="purchase" class="btn btn-lg btn-primary btn-default" style="width:49%;" disabled>품절</button>
                 {% else %}
                 <button id="purchase" class="btn btn-lg btn-primary btn-default" style="width:49%;" onclick="req('/purchase')">바로구매</button>
-                <button id="addtocart" class="btn btn-lg btn-primary btn-cart" style="width:49%;" onclick="req('/order/bucket')">장바구니</button>
+                <button id="addtocart" class="btn btn-lg btn-primary btn-cart" style="width:49%;" onclick="req('/order/bucket')" >장바구니</button>
                 {% endif %}
                 </div>
                 <script type="text/javascript">
@@ -117,18 +117,18 @@
     					if (isNaN(ui)) 
   						{	
     						alert("숫자만 입력 가능합니다.");
-    						document.getElementById('chicken_quantity').value = 1;
+    						document.getElementById("quantity_"+k).value = 1;
     						return false;
   						}
   						ui = parseInt(ui);
   						if (ui<0){
   							alert("수량이 마이너스가 될 수 없습니다.");
-    						document.getElementById('chicken_quantity').value = 1;
+    						document.getElementById("quantity_"+k).value = 1;
     						return false;
   						}
   						if (ui>option_quantity[oi]){
   							alert("입력한 수량이 재고 수량보다 많습니다.");
-    						document.getElementById('chicken_quantity').value = 1;
+    						document.getElementById("quantity_"+k).value = 1;
     						return false;
   						}
     					price = price + (option_price[oi] * ui);
@@ -153,7 +153,7 @@
     					s2.className = "title";
     					s2.innerHTML = option_name[i];
     					s3.className = "quantity-chk";
-    					s3.innerHTML = "수량 <input type='text' pattern='\d*' id='quantity_"+oid+"' value='1' maxlength='3' onchange='updateFinalPrice()' onkeypress='return event.charCode >= 48 && event.charCode <= 57'/>";
+    					s3.innerHTML = "수량 <input type='text' pattern='\d*' id='quantity_"+oid+"' value='1' maxlength='3' onchange='updateFinalPrice()' onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13'/>";
     					s4.className = "quantity-delete";
     					s4.innerHTML = "₩"+commify(option_price[i])+" | <a href='#' onclick='deleteOption("+op.id+"); return false'>삭제</a>";
     					s1.appendChild(s2);
@@ -208,6 +208,7 @@
     					item.setAttribute("value", ui);
     					form.appendChild(item);
     				}
+                    document.body.appendChild(form);
     				form.submit();
     				}else{
     					alert("상품을 선택해주세요.")

@@ -12,9 +12,9 @@
 					<label for="inputName" class="sr-only">상품명</label>
 					<input type="text" name="name" id="inputName" class="form-control" placeholder="상품명" required autofocus>
 					<label for="inputPrice" class="sr-only">가격</label>
-					<input type="number" name="price" id="inputPrice" class="form-control" placeholder="가격" required>
+					<input type="number" name="price" id="inputPrice" class="form-control" placeholder="가격" onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13' required>
 					<label for="inputQuantity" class="sr-only">수량</label>
-					<input type="number" name="quantity" id="inputQuantity" class="form-control" placeholder="수량" required>
+					<input type="number" name="quantity" id="inputQuantity" class="form-control" placeholder="수량" onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13' required>
 					<label for="inputIntro" class="sr-only">한줄소개</label>
 					<input type="text" name="intro" id="inputIntro" class="form-control" placeholder="한줄소개" required>
 					<div id="sell-thumb" class="sell-add-title">
@@ -47,7 +47,7 @@
 			parent.className = "sell-add-parent";
     		title.className = "sell-add-title3";
           	title.innerHTML = "<h5>옵션 " + (option + 1) + " | <a href='#' onclick='deleteOption("+parent.id+"); return false'>삭제</a> </h5>";
-          	input.innerHTML = "<label for='inputOptionName' class='sr-only'>옵션명</label><input type='name' name='oname' id='inputOptionName' class='form-control' placeholder='옵션명'><label for='inputOptionPrice' class='sr-only'>가격</label><input type='number' name='oprice' id='inputOptionPrice' class='form-control' placeholder='가격'><label for='inputOptionQuantity' class='sr-only'>수량</label><input type='number' name='oquantity' id='inputOptionQuantity' class='form-control' placeholder='수량'>";
+          	input.innerHTML = "<label for='inputOptionName' class='sr-only'>옵션명</label><input type='name' name='oname' id='inputOptionName' class='form-control' placeholder='옵션명' required><label for='inputOptionPrice' class='sr-only'>가격</label><input type='number' name='oprice' id='inputOptionPrice' class='form-control' placeholder='가격' onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13'><label for='inputOptionQuantity' class='sr-only'>수량</label><input type='number' name='oquantity' id='inputOptionQuantity' class='form-control' placeholder='수량' onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 13' required>";
 			parent.appendChild(title)
 			parent.appendChild(input);
 			document.getElementById('option').appendChild(parent);

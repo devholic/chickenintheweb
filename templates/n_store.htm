@@ -17,10 +17,10 @@
 		{% for chicken in chicken_list %}
 		<div class="cardwrap col-xs-12 col-sm-6 col-md-4">
 			<div class="thumbnail card" onclick="window.location = '/chicken/brand?cid={{ chicken.key.id }}';">
-				<img src="/blob/image?id={{ chicken.key }}" alt="...">
+				<img src="/blob/image?id={{ chicken.key }}" alt="..." style="width:100%;">
 				<div class="caption card-content">
 					<h3>{{ chicken.name }}</h3>
-					<h5>{{ chicken.seller.name }} | {{ chicken.pricestr }}</h3>
+					<h5>{{ chicken.pricestr }} | {{ chicken.quantity }}개 남음</h3>
 					<h6>{{ chicken.intro }}</p>
 				</div>
 			</div>
@@ -34,9 +34,13 @@
 			{% else %}
 	  		<div class="thumbnail card" onclick="window.location = '/chicken/local?id={{ store.key.id }}';">
 			{% endif %}
-				<img src="/blob/image?id={{ store.key }}" alt="...">
+				<img src="/blob/image?id={{ store.key }}" alt="..." style="width:100%;">
 				<div class="caption card-content">
 					<h3>{{ store.seller.name }}</h3>
+					{% if type == 'brand' %}
+					{% else %}
+					<h5>{{ store.seller.address }}</h5>
+					{% endif %}
 				</div>
 			</div>
 		</div>
