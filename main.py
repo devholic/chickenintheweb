@@ -812,11 +812,11 @@ class PurchaseHandler(BaseHandler):
 									self.redirect('/error')
 								else:
 									option.uquantity = int(q[index])
-									index += 1
 									option.finalprice = option.uquantity * option.price
 									oo = {'option': int(i[index]),'option_quantity': int(q[index])}
 									childlist.append(oo)
 									price += option.finalprice
+									index += 1
 						if w.money - price >= 0:
 							# 결제 처리
 							chicken.quantity = chicken.quantity - cq
@@ -1085,6 +1085,8 @@ class SellerNewChickenHandler(BaseHandler):
 					o.price = int(op[oc])
 					o.put()
 			self.redirect('/seller/chicken')
+		else:
+			self.redirect('/')
 
 class ErrorHandler(BaseHandler):
 	def get(self):
