@@ -483,13 +483,13 @@ class BrandHandler(BaseHandler):
 					i = iq.fetch(limit=5)
 					if len(o) != 0:
 						if len(i) != 0:
-							Render(self, 'n_chicken.htm',{'chicken':q,'option_list':o,'image_list':i})
+							Render(self, 'n_chicken.htm',{'chicken':q,'option_list':o,'image_list':i, 'type':'brand'})
 						else:
-							Render(self, 'n_chicken.htm',{'chicken':q,'option_list':o})
+							Render(self, 'n_chicken.htm',{'chicken':q,'option_list':o, 'type':'brand'})
 					elif len(i) != 0:
-						Render(self, 'n_chicken.htm',{'chicken':q,'image_list':i})
+						Render(self, 'n_chicken.htm',{'chicken':q,'image_list':i, 'type':'brand'})
 					else:
-						Render(self, 'n_chicken.htm',{'chicken':q})
+						Render(self, 'n_chicken.htm',{'chicken':q, 'type':'brand'})
 				else:
 					query = db.Query(Store)
 					query.filter("isBrand =", True)
@@ -504,7 +504,7 @@ class BrandHandler(BaseHandler):
 					for c in result:
 						# https://www.python.org/dev/peps/pep-0378/
 						c.pricestr = '₩'+format(c.price,',d')
-					Render(self, 'n_store.htm', {'request':'store','store':q, 'chicken_list':result})
+					Render(self, 'n_store.htm', {'request':'store','store':q, 'chicken_list':result, 'type':'brand'})
 				else:
 					query = db.Query(Store)
 					query.filter("isBrand =", True)
@@ -883,14 +883,16 @@ class PurchaseHandler(BaseHandler):
 									moneylist[idx] += (option.price * int(option.uquantity))
 								finalprice += (option.price * int(option.uquantity))
 					if w.money - finalprice >= 0:
+						itemindex = 0
 						for bucket in bucketlist:
 							for index in range(len(bucket)):
 								if index == 0:
-									itemlist[index].quantity = itemlist[index].quantity - int(bucket[index]['chicken_quantity'])
-									itemlist[index].put()
+									itemlist[itemindex].quantity = itemlist[itemindex].quantity - int(bucket[index]['chicken_quantity'])
+									itemlist[itemindex].put()
 								else:
-									itemlist[index].quantity = itemlist[index].quantity - int(bucket[index]['option_quantity'])
-									itemlist[index].put()
+									itemlist[itemindex].quantity = itemlist[itemindex].quantity - int(bucket[index]['option_quantity'])
+									itemlist[itemindex].put()
+								itemindex += 1
 						order = UserOrder()
 						order.buyer = u.key()
 						order.detail = jstr
