@@ -1,5 +1,5 @@
 chickenintheweb
-===============
-GAE + python + bootstrap
-
-todolist : https://trello.com/b/HooCFGne/chickenintheweb
+---
+* 동국대학교 웹프로그래밍 수업 1인 과제
+* Google App Engine에서 돌아갑니다.
+    * Python with webapp2
